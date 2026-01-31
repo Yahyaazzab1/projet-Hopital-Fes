@@ -1,0 +1,841 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Scanner Intelligent - Hôpital AL GHASSANI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        margin: -1.5rem -1.5rem 2rem -1.5rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .page-header-modern h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .page-header-modern h1 i {
+        margin-right: 1rem;
+        font-size: 1.8rem;
+    }
+    
+    .page-header-modern p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .scanner-stats-modern {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .stat-item-modern {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .action-card-modern {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        cursor: pointer;
+    }
+    
+    .action-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .action-card-modern:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    }
+    
+    .action-icon-modern {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: all 0.3s ease;
+    }
+    
+    .action-card-modern:hover .action-icon-modern {
+        transform: scale(1.1);
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .action-title-modern {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+    
+    .action-description-modern {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+    
+    .preview-container-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        min-height: 500px;
+    }
+    
+    .preview-header-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .preview-header-modern h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+    }
+    
+    .preview-header-modern h3 i {
+        margin-right: 0.75rem;
+        font-size: 1.3rem;
+    }
+    
+    .preview-content-modern {
+        padding: 3rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+    }
+    
+    .scanner-placeholder-modern {
+        text-align: center;
+        color: #64748b;
+    }
+    
+    .scanner-placeholder-modern i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+        color: #667eea;
+    }
+    
+    .scanner-placeholder-modern h4 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #1e293b;
+        font-size: 1.5rem;
+    }
+    
+    .scanner-placeholder-modern p {
+        margin-bottom: 0;
+        opacity: 0.8;
+        font-size: 1.1rem;
+    }
+    
+    .processing-steps-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .processing-header-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        text-align: center;
+    }
+    
+    .processing-header-modern h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .processing-header-modern h3 i {
+        margin-right: 0.75rem;
+        font-size: 1.3rem;
+    }
+    
+    .steps-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 2rem;
+    }
+    
+    .step-item-modern {
+        text-align: center;
+        padding: 1.5rem 1rem;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+        border: 2px solid transparent;
+    }
+    
+    .step-item-modern:hover {
+        background: rgba(102, 126, 234, 0.05);
+        border-color: rgba(102, 126, 234, 0.2);
+    }
+    
+    .step-item-modern.active {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border-color: #4facfe;
+    }
+    
+    .step-item-modern.completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-color: #10b981;
+    }
+    
+    .step-icon-modern {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+        background: #64748b;
+        transition: all 0.3s ease;
+    }
+    
+    .step-item-modern.active .step-icon-modern {
+        background: rgba(255, 255, 255, 0.2);
+        animation: pulse 2s infinite;
+    }
+    
+    .step-item-modern.completed .step-icon-modern {
+        background: rgba(255, 255, 255, 0.2);
+        animation: completedPulse 0.6s ease-out;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    @keyframes completedPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    .step-content-modern h6 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .step-status-modern .badge {
+        font-size: 0.75rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stats-section-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-header-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+    }
+    
+    .stats-header-modern h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+    }
+    
+    .stats-header-modern h3 i {
+        margin-right: 0.75rem;
+        font-size: 1.3rem;
+    }
+    
+    .stats-content-modern {
+        padding: 2rem;
+    }
+    
+    .stats-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card-modern {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+    
+    .stat-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stat-card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-icon-modern {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stat-number-modern {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label-modern {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .recent-scans-modern {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .recent-scans-header-modern {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 1.5rem;
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .recent-scans-header-modern i {
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+    
+    .scan-list-modern {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .scan-item-modern {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    
+    .scan-item-modern:last-child {
+        border-bottom: none;
+    }
+    
+    .scan-item-modern:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.02);
+    }
+    
+    .scan-icon-modern {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .scan-details-modern {
+        flex: 1;
+    }
+    
+    .scan-details-modern h6 {
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        font-size: 1rem;
+    }
+    
+    .scan-details-modern small {
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+    
+    .scan-actions-modern {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-action-modern {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .btn-view-modern {
+        background: rgba(79, 172, 254, 0.1);
+        color: #4facfe;
+    }
+    
+    .btn-view-modern:hover {
+        background: #4facfe;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-download-modern {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+    
+    .btn-download-modern:hover {
+        background: #10b981;
+        color: white;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header moderne -->
+    <div class="page-header-modern">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                <h1>
+                    <i class="fas fa-camera"></i>
+                    Scanner Intelligent
+                    </h1>
+                <p>Numérisez et traitez vos documents médicaux avec l'IA</p>
+                </div>
+                <div class="col-md-4 text-end">
+                <div class="scanner-stats-modern">
+                    <span class="stat-item-modern">
+                            <i class="fas fa-file-medical"></i>
+                            <span id="totalScans">{{ total_scans }}</span> Documents
+                        </span>
+                    </div>
+                </div>
+            </div>
+            </div>
+    
+    <!-- Actions principales -->
+    <div class="actions-grid">
+        <div class="action-card-modern" id="startScanBtn">
+            <div class="action-icon-modern">
+                <i class="fas fa-camera"></i>
+            </div>
+            <h4 class="action-title-modern">Démarrer Scan</h4>
+            <p class="action-description-modern">Caméra ou simulation</p>
+        </div>
+        <div class="action-card-modern" id="uploadBtn">
+            <div class="action-icon-modern">
+                        <i class="fas fa-upload"></i>
+            </div>
+            <h4 class="action-title-modern">Importer Fichier</h4>
+            <p class="action-description-modern">Image ou PDF</p>
+    </div>
+        <div class="action-card-modern" id="batchBtn">
+            <div class="action-icon-modern">
+                        <i class="fas fa-layer-group"></i>
+            </div>
+            <h4 class="action-title-modern">Scan en Lot</h4>
+            <p class="action-description-modern">Plusieurs documents</p>
+        </div>
+                </div>
+
+    <!-- Zone de prévisualisation -->
+    <div class="preview-container-modern">
+        <div class="preview-header-modern">
+            <h3>
+                <i class="fas fa-eye"></i>
+                Aperçu du Document
+            </h3>
+            </div>
+        <div class="preview-content-modern">
+            <div id="scanPreview">
+                <div class="scanner-placeholder-modern">
+                    <i class="fas fa-camera"></i>
+                    <h4>Prêt à Scanner</h4>
+                    <p>Choisissez une option ci-dessus pour commencer</p>
+            </div>
+        </div>
+                </div>
+            </div>
+
+    <!-- Étapes de traitement -->
+    <div id="processingSteps" class="processing-steps-modern" style="display: none;">
+        <div class="processing-header-modern">
+            <h3>
+                <i class="fas fa-cogs"></i>
+                Traitement en cours...
+            </h3>
+        </div>
+        <div class="steps-grid-modern">
+            <div class="step-item-modern" id="step1">
+                <div class="step-icon-modern">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                <div class="step-content-modern">
+                            <h6>Capture</h6>
+                    <div class="step-status-modern">
+                                <span class="badge bg-secondary">En attente</span>
+                            </div>
+        </div>
+    </div>
+            <div class="step-item-modern" id="step2">
+                <div class="step-icon-modern">
+                            <i class="fas fa-image"></i>
+                        </div>
+                <div class="step-content-modern">
+                            <h6>Analyse</h6>
+                    <div class="step-status-modern">
+                                <span class="badge bg-secondary">En attente</span>
+                        </div>
+                    </div>
+    </div>
+            <div class="step-item-modern" id="step3">
+                <div class="step-icon-modern">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="step-content-modern">
+                            <h6>IA</h6>
+                    <div class="step-status-modern">
+                                <span class="badge bg-secondary">En attente</span>
+                            </div>
+                        </div>
+                    </div>
+            <div class="step-item-modern" id="step4">
+                <div class="step-icon-modern">
+                            <i class="fas fa-search"></i>
+                    </div>
+                <div class="step-content-modern">
+                            <h6>OCR</h6>
+                    <div class="step-status-modern">
+                                <span class="badge bg-secondary">En attente</span>
+                        </div>
+                    </div>
+                    </div>
+            <div class="step-item-modern" id="step5">
+                <div class="step-icon-modern">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="step-content-modern">
+                            <h6>Classification</h6>
+                    <div class="step-status-modern">
+                                <span class="badge bg-secondary">En attente</span>
+                    </div>
+                        </div>
+                    </div>
+            <div class="step-item-modern" id="step6">
+                <div class="step-icon-modern">
+                            <i class="fas fa-check"></i>
+                        </div>
+                <div class="step-content-modern">
+                            <h6>Finalisation</h6>
+                    <div class="step-status-modern">
+                                <span class="badge bg-secondary">En attente</span>
+                            </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Statistiques et scans récents -->
+    <div class="stats-section-modern">
+        <div class="stats-header-modern">
+            <h3>
+                <i class="fas fa-chart-bar"></i>
+                Statistiques et Historique
+            </h3>
+        </div>
+        <div class="stats-content-modern">
+            <div class="row">
+                <!-- Statistiques -->
+                <div class="col-md-8">
+                    <div class="stats-grid-modern">
+                        <div class="stat-card-modern">
+                            <div class="stat-icon-modern">
+                                <i class="fas fa-file-medical"></i>
+                            </div>
+                            <div class="stat-number-modern" id="totalDocuments">0</div>
+                            <div class="stat-label-modern">Documents scannés</div>
+                </div>
+                        <div class="stat-card-modern">
+                            <div class="stat-icon-modern">
+                                <i class="fas fa-check-circle"></i>
+                </div>
+                            <div class="stat-number-modern" id="processedToday">0</div>
+                            <div class="stat-label-modern">Traités aujourd'hui</div>
+                </div>
+                        <div class="stat-card-modern">
+                            <div class="stat-icon-modern">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-number-modern" id="avgProcessingTime">0s</div>
+                            <div class="stat-label-modern">Temps moyen</div>
+            </div>
+                        <div class="stat-card-modern">
+                            <div class="stat-icon-modern">
+                                <i class="fas fa-robot"></i>
+    </div>
+                            <div class="stat-number-modern" id="aiAccuracy">98%</div>
+                            <div class="stat-label-modern">Précision IA</div>
+                    </div>
+                    </div>
+                </div>
+                
+                <!-- Scans récents -->
+                <div class="col-md-4">
+                    <div class="recent-scans-modern">
+                        <div class="recent-scans-header-modern">
+                            <i class="fas fa-history"></i>
+                            Scans Récents ({{ scanned_documents|length }})
+                        </div>
+                        <div class="scan-list-modern">
+                            {% if scanned_documents %}
+                                {% for doc in scanned_documents %}
+                                <div class="scan-item-modern">
+                                    <div class="scan-icon-modern">
+                                        {% if doc.document_type == 'prescription' %}
+                                            <i class="fas fa-prescription"></i>
+                                        {% elif doc.document_type == 'lab_result' %}
+                                            <i class="fas fa-flask"></i>
+                                        {% elif doc.document_type == 'radiology' %}
+                                            <i class="fas fa-x-ray"></i>
+                                        {% else %}
+                                            <i class="fas fa-file-medical"></i>
+                                        {% endif %}
+                    </div>
+                                    <div class="scan-details-modern">
+                                        <h6>{{ doc.title|truncatechars:30 }}</h6>
+                                        <small>{{ doc.patient_name|default:"Patient inconnu" }}</small>
+                                        <small class="d-block text-muted">{{ doc.created_at|timesince }} ago</small>
+                    </div>
+                                    <div class="scan-actions-modern">
+                                        <a href="{% url 'view_document' doc.id %}" class="btn-action-modern btn-view-modern" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'download_document' doc.id %}" class="btn-action-modern btn-download-modern" title="Télécharger">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-4 text-muted">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>Aucun document scanné</p>
+                                </div>
+                            {% endif %}
+        </div>
+    </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/scanner-modern.js' %}"></script>
+<script>
+// Fonctions de compatibilité pour l'ancien code
+function startCamera() {
+    if (window.scanner) {
+        window.scanner.startScanning();
+    }
+}
+
+function stopCamera() {
+    if (window.scanner) {
+        window.scanner.cancelScanning();
+    }
+}
+
+function capturePhoto() {
+    if (window.scanner) {
+        window.scanner.captureDocument();
+    }
+}
+
+function retakePhoto() {
+    if (window.scanner) {
+        window.scanner.retakePhoto();
+    }
+}
+
+function submitDocument() {
+    console.log('Utilisez le formulaire modal pour soumettre le document');
+}
+
+function switchCamera() {
+    console.log('Changement de caméra non implémenté dans cette version');
+}
+
+function toggleFlash() {
+    console.log('Flash non implémenté dans cette version');
+}
+
+function downloadScannedReport(reportId) {
+    if (window.scanner) {
+        window.scanner.downloadScannedReport(reportId);
+    }
+}
+
+function viewScannedReport(reportId) {
+    if (window.scanner) {
+        window.scanner.viewScannedReport(reportId);
+    }
+}
+
+// Fonction pour télécharger un document
+function downloadDocument(docId) {
+    fetch(`/api/documents/${docId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.description && data.description.startsWith('data:image')) {
+                // C'est une image base64
+                const link = document.createElement('a');
+                link.href = data.description;
+                link.download = `scan_${data.title}_${docId}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('Ce document ne contient pas d\'image téléchargeable');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du téléchargement');
+        });
+}
+</script>
+{% endblock %}

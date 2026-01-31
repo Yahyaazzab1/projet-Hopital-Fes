@@ -1,0 +1,290 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Ajouter une Tâche - Hôpital EL GHASSANI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .form-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        border-radius: 10px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+    }
+    
+    .icon-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .priority-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    .priority-normal {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .priority-high {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+    
+    .priority-urgent {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-plus-circle me-2"></i>Nouvelle Tâche Infirmière
+        </h1>
+        <a href="{% url 'activities' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour au Planning
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card form-card">
+                <div class="icon-section">
+                    <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+                    <h4 class="mb-0">Création d'une Nouvelle Tâche</h4>
+                    <p class="mb-0 opacity-75">Planifiez et organisez les soins infirmiers</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Titre de la tâche -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label for="title" class="form-label">
+                                    <i class="fas fa-heading me-2"></i>Titre de la Tâche *
+                                </label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="Ex: Administration de médicaments - Chambre 201" required>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-align-left me-2"></i>Description Détaillée *
+                                </label>
+                                <textarea class="form-control" id="description" name="description" rows="4" 
+                                          placeholder="Décrivez les soins à effectuer, les instructions particulières..." required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Patient et Type de tâche -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="patient" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Patient *
+                                </label>
+                                <select class="form-select" id="patient" name="patient" required>
+                                    <option value="">Sélectionner un patient</option>
+                                    {% for patient in patients %}
+                                    <option value="{{ patient.first_name }} {{ patient.last_name }}">
+                                        {{ patient.first_name }} {{ patient.last_name }} - {{ patient.patient_id }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="task_type" class="form-label">
+                                    <i class="fas fa-tasks me-2"></i>Type de Tâche *
+                                </label>
+                                <select class="form-select" id="task_type" name="task_type" required>
+                                    <option value="">Sélectionner le type</option>
+                                    {% for value, label in task_types %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Priorité et Heure -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="priority" class="form-label">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Priorité *
+                                </label>
+                                <select class="form-select" id="priority" name="priority" required>
+                                    <option value="">Sélectionner la priorité</option>
+                                    {% for value, label in priorities %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="mt-2">
+                                    <span class="priority-badge priority-normal">Normale</span>
+                                    <span class="priority-badge priority-high">Élevée</span>
+                                    <span class="priority-badge priority-urgent">Urgente</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="scheduled_time" class="form-label">
+                                    <i class="fas fa-clock me-2"></i>Heure Prévue *
+                                </label>
+                                <input type="time" class="form-control" id="scheduled_time" name="scheduled_time" required>
+                            </div>
+                        </div>
+
+                        <!-- Chambre (optionnel) -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="room" class="form-label">
+                                    <i class="fas fa-bed me-2"></i>Chambre
+                                </label>
+                                <input type="text" class="form-control" id="room" name="room" 
+                                       placeholder="Ex: 201, 205, etc.">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note me-2"></i>Notes Supplémentaires
+                                </label>
+                                <input type="text" class="form-control" id="notes" name="notes" 
+                                       placeholder="Instructions particulières, allergies, etc.">
+                            </div>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary me-3">
+                                    <i class="fas fa-save me-2"></i>Créer la Tâche
+                                </button>
+                                <a href="{% url 'activities' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus sur le premier champ
+    document.getElementById('title').focus();
+    
+    // Validation en temps réel
+    const form = document.querySelector('form');
+    const requiredFields = form.querySelectorAll('[required]');
+    
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    });
+    
+    // Soumission du formulaire
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (field.value.trim() === '') {
+                field.classList.add('is-invalid');
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            showNotification('Veuillez remplir tous les champs obligatoires', 'fas fa-exclamation-triangle', 'error');
+        }
+    });
+});
+
+function showNotification(message, icon, type = 'info') {
+    const notification = document.createElement('div');
+    const alertClass = type === 'error' ? 'danger' : type;
+    notification.className = `alert alert-${alertClass} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        <i class="${icon} me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}
+
+

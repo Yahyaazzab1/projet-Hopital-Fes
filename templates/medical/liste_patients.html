@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Patients</title>
+    <!-- CSS intégré pour le design responsive -->
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .patient-card { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .patient-card:hover { background-color: #e8f4f8; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #007bff; color: white; }
+        button { background-color: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Patients</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Date de Naissance</th>
+                <th>Adresse</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+            <tr class="patient-card">
+                <td>{{ patient.nom }}</td>
+                <td>{{ patient.prenom }}</td>
+                <td>{{ patient.date_naissance }}</td>
+                <td>{{ patient.adresse }}</td>
+                <td><button onclick="voirDetails({{ patient.id }})">Voir Détails</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- JS intégré pour l'interactivité -->
+    <script>
+        function voirDetails(id) {
+            // Exemple d'interactivité : afficher une alerte avec l'ID
+            alert('Détails du patient ID: ' + id);
+            // Ici, vous pourriez faire une requête AJAX pour charger plus de données
+            // fetch(`/api/patient/${id}/`)
+            //     .then(response => response.json())
+            //     .then(data => console.log(data));
+        }
+
+        // Ajout d'un événement au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page chargée avec succès ! Nombre de patients : {{ patients|length }}');
+        });
+    </script>
+</body>
+</html>

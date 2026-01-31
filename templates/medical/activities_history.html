@@ -1,0 +1,360 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Historique des Activités - Hôpital EL GHASSANI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-history me-2"></i>Historique des Activités
+                </h6>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="filterBySeverity('all')">
+                        <i class="fas fa-list me-1"></i>Toutes
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" onclick="filterBySeverity('info')">
+                        <i class="fas fa-info-circle me-1"></i>Info
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="filterBySeverity('warning')">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Avertissements
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="filterBySeverity('error')">
+                        <i class="fas fa-times-circle me-1"></i>Erreurs
+                    </button>
+                    <button class="btn btn-sm btn-success" onclick="exportHistory()">
+                        <i class="fas fa-download me-1"></i>Exporter
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filtres et recherche -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="searchActivities" placeholder="Rechercher une activité...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="userFilter">
+                            <option value="">Tous les utilisateurs</option>
+                            {% for activity_user in users %}
+                            <option value="{{ activity_user.id }}">{{ activity_user.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="actionFilter">
+                            <option value="">Toutes les actions</option>
+                            <option value="user_created">Création utilisateur</option>
+                            <option value="user_updated">Modification utilisateur</option>
+                            <option value="user_deleted">Suppression utilisateur</option>
+                            <option value="patient_created">Création patient</option>
+                            <option value="patient_updated">Modification patient</option>
+                            <option value="patient_deleted">Suppression patient</option>
+                            <option value="document_created">Création document</option>
+                            <option value="document_scanned">Document scanné</option>
+                            <option value="document_updated">Modification document</option>
+                            <option value="document_deleted">Suppression document</option>
+                            <option value="report_created">Création rapport</option>
+                            <option value="report_updated">Modification rapport</option>
+                            <option value="report_deleted">Suppression rapport</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" id="dateFilter" placeholder="Filtrer par date">
+                    </div>
+                </div>
+
+                <!-- Timeline des activités -->
+                <div class="activity-timeline">
+                    {% for activity in activities %}
+                    <div class="activity-item" 
+                         data-user-id="{{ activity.user.id }}" 
+                         data-action="{{ activity.action }}" 
+                         data-severity="{{ activity.severity }}"
+                         data-date="{{ activity.created_at|date:'Y-m-d' }}">
+                        <div class="activity-marker bg-{{ activity.severity }}">
+                            {% if activity.severity == 'info' %}
+                                <i class="fas fa-info-circle"></i>
+                            {% elif activity.severity == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% elif activity.severity == 'error' %}
+                                <i class="fas fa-times-circle"></i>
+                            {% elif activity.severity == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% else %}
+                                <i class="fas fa-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="activity-content">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <span class="badge bg-{{ activity.severity }}">
+                                            {{ activity.get_action_display }}
+                                        </span>
+                                    </h6>
+                                    <p class="mb-1">{{ activity.description }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ activity.user.get_full_name }}
+                                        <i class="fas fa-clock ms-3 me-1"></i>{{ activity.created_at|date:"d/m/Y H:i" }}
+                                        {% if activity.ip_address %}
+                                        <i class="fas fa-network-wired ms-3 me-1"></i>{{ activity.ip_address }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                {% if activity.metadata %}
+                                <button class="btn btn-sm btn-outline-secondary" onclick="showDetails({{ activity.id }})">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-history fa-4x text-muted mb-3"></i>
+                        <p class="text-muted">Aucune activité enregistrée</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if activities.has_other_pages %}
+                <nav aria-label="Pagination des activités" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if activities.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activities.previous_page_number }}">Précédent</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in activities.paginator.page_range %}
+                        <li class="page-item {% if activities.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+                        
+                        {% if activities.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activities.next_page_number }}">Suivant</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les détails -->
+<div class="modal fade" id="activityDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle me-2"></i>Détails de l'activité
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="activityDetailsContent">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.activity-timeline {
+    position: relative;
+    padding-left: 50px;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #007bff, #6c757d);
+}
+
+.activity-item {
+    position: relative;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.activity-marker {
+    position: absolute;
+    left: -38px;
+    top: 5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.activity-marker.bg-info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+.activity-marker.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+}
+
+.activity-marker.bg-error,
+.activity-marker.bg-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+.activity-marker.bg-success {
+    background: linear-gradient(135deg, #28a745, #218838);
+}
+
+.activity-content {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.activity-content:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.dark-theme .activity-content {
+    background: #2d3748;
+    color: #e2e8f0;
+}
+
+.dark-theme .activity-timeline::before {
+    background: linear-gradient(to bottom, #4299e1, #718096);
+}
+
+.dark-theme .activity-item {
+    border-bottom-color: #4a5568;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filtrage par sévérité
+function filterBySeverity(severity) {
+    const items = document.querySelectorAll('.activity-item');
+    items.forEach(item => {
+        if (severity === 'all' || item.getAttribute('data-severity') === severity) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Recherche d'activités
+document.getElementById('searchActivities').addEventListener('input', filterActivities);
+document.getElementById('userFilter').addEventListener('change', filterActivities);
+document.getElementById('actionFilter').addEventListener('change', filterActivities);
+document.getElementById('dateFilter').addEventListener('change', filterActivities);
+
+function filterActivities() {
+    const searchTerm = document.getElementById('searchActivities').value.toLowerCase();
+    const userFilter = document.getElementById('userFilter').value;
+    const actionFilter = document.getElementById('actionFilter').value;
+    const dateFilter = document.getElementById('dateFilter').value;
+    const items = document.querySelectorAll('.activity-item');
+    
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        const userId = item.getAttribute('data-user-id');
+        const action = item.getAttribute('data-action');
+        const date = item.getAttribute('data-date');
+        
+        const matchesSearch = text.includes(searchTerm);
+        const matchesUser = !userFilter || userId === userFilter;
+        const matchesAction = !actionFilter || action === actionFilter;
+        const matchesDate = !dateFilter || date === dateFilter;
+        
+        item.style.display = (matchesSearch && matchesUser && matchesAction && matchesDate) ? 'block' : 'none';
+    });
+}
+
+// Afficher les détails d'une activité
+function showDetails(activityId) {
+    // Simuler les détails (dans une vraie app, faire un appel API)
+    const modal = new bootstrap.Modal(document.getElementById('activityDetailsModal'));
+    document.getElementById('activityDetailsContent').innerHTML = `
+        <div class="alert alert-info">
+            <h6>ID de l'activité: ${activityId}</h6>
+            <p>Informations détaillées de l'activité...</p>
+            <pre class="bg-light p-3 rounded">
+{
+    "activity_id": ${activityId},
+    "timestamp": "${new Date().toISOString()}",
+    "user_agent": "${navigator.userAgent}",
+    "metadata": { }
+}
+            </pre>
+        </div>
+    `;
+    modal.show();
+}
+
+// Exporter l'historique
+function exportHistory() {
+    if (window.notifications) {
+        window.notifications.show('Export en cours...', 'info');
+    }
+    
+    // Récupérer toutes les activités visibles
+    const items = Array.from(document.querySelectorAll('.activity-item'))
+        .filter(item => item.style.display !== 'none');
+    
+    const data = items.map(item => ({
+        date: item.querySelector('.text-muted').textContent,
+        action: item.querySelector('.badge').textContent,
+        description: item.querySelector('p').textContent
+    }));
+    
+    // Créer le CSV
+    const csv = [
+        ['Date', 'Action', 'Description'],
+        ...data.map(row => [row.date, row.action, row.description])
+    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    
+    // Télécharger
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `historique_activites_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    if (window.notifications) {
+        window.notifications.show('Historique exporté avec succès!', 'success');
+    }
+}
+</script>
+{% endblock %}
+
+

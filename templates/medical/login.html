@@ -1,0 +1,725 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Hôpital AL GHASSANI</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body.login-body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        .particle:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 120px; height: 120px; left: 20%; animation-delay: 2s; }
+        .particle:nth-child(3) { width: 60px; height: 60px; left: 30%; animation-delay: 4s; }
+        .particle:nth-child(4) { width: 100px; height: 100px; left: 40%; animation-delay: 6s; }
+        .particle:nth-child(5) { width: 90px; height: 90px; left: 50%; animation-delay: 8s; }
+        .particle:nth-child(6) { width: 70px; height: 70px; left: 60%; animation-delay: 10s; }
+        .particle:nth-child(7) { width: 110px; height: 110px; left: 70%; animation-delay: 12s; }
+        .particle:nth-child(8) { width: 85px; height: 85px; left: 80%; animation-delay: 14s; }
+        .particle:nth-child(9) { width: 95px; height: 95px; left: 90%; animation-delay: 16s; }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 300% 300%;
+            animation: gradientText 3s ease infinite;
+        }
+
+        @keyframes gradientText {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .login-form-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px 35px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 10;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .login-form .form-control-lg {
+            border-radius: 16px;
+            padding: 16px 20px;
+            border: 2px solid #e9ecef;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .login-form .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #667eea;
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        .login-form .btn-lg {
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glow-btn {
+            background: var(--primary-gradient);
+            border: none;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glow-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .glow-btn:hover::before {
+            left: 100%;
+        }
+
+        .glow-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 5;
+        }
+
+        .input-icon:hover {
+            color: #667eea;
+        }
+
+        .caps-hint {
+            display: none;
+            color: #f39c12;
+            font-weight: 500;
+        }
+
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .bg-blur {
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Animated blobs in hero */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            animation: blobMove 20s ease-in-out infinite;
+        }
+
+        .blob.one {
+            width: 300px;
+            height: 300px;
+            background: #00f2fe;
+            top: 10%;
+            left: 10%;
+        }
+
+        .blob.two {
+            width: 400px;
+            height: 400px;
+            background: #f093fb;
+            bottom: 15%;
+            right: 5%;
+            animation-delay: -7s;
+        }
+
+        .blob.three {
+            width: 250px;
+            height: 250px;
+            background: #43e97b;
+            bottom: 10%;
+            left: 20%;
+            animation-delay: -14s;
+        }
+
+        @keyframes blobMove {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        .trust-badges {
+            opacity: 0.9;
+        }
+
+        .trust-badges i {
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .trust-badges span:hover i {
+            color: #667eea;
+            transform: scale(1.1);
+        }
+
+        /* Feature cards */
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Loading animation */
+        .btn-loading {
+            position: relative;
+        }
+
+        .btn-loading .spinner-border {
+            width: 1.2rem;
+            height: 1.2rem;
+            border-width: 2px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 991px) {
+            .left-hero {
+                display: none;
+            }
+            
+            .login-form-container {
+                margin: 20px;
+                padding: 30px 25px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .login-form-container {
+                margin: 10px;
+                padding: 25px 20px;
+                border-radius: 20px;
+            }
+            
+            .login-form .form-control-lg {
+                padding: 14px 16px;
+                font-size: 16px;
+            }
+        }
+
+        /* Dark mode support */
+        .dark-theme .login-form-container {
+            background: rgba(31, 31, 31, 0.95);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-theme .login-form .form-control {
+            background: rgba(42, 42, 42, 0.9);
+            color: #fff;
+            border-color: #4a4a4a;
+        }
+
+        .dark-theme .login-form .form-control:focus {
+            border-color: #667eea;
+            background: #2a2a2a;
+        }
+
+        /* Pulse animation for security badges */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Enhanced form animations */
+        .form-group {
+            transition: all 0.3s ease;
+        }
+
+        .form-group:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Loading state improvements */
+        .btn-loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: loading-shimmer 1.5s infinite;
+        }
+
+        @keyframes loading-shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body class="login-body">
+    <!-- Floating particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="container-fluid vh-100">
+        <div class="row h-100">
+            <!-- Left Side - Hospital Info -->
+            <div class="col-lg-6 left-hero d-none d-lg-flex align-items-center justify-content-center text-white position-relative" style="background: linear-gradient(135deg,#667eea 0%, #764ba2 100%); overflow:hidden;">
+                <div class="blob one"></div>
+                <div class="blob two"></div>
+                <div class="blob three"></div>
+                <div class="text-center px-5 position-relative z-3">
+                    <div class="brand-pill mb-4">
+                        <i class="fas fa-hospital"></i>
+                        Hôpital AL GHASSANI
+                    </div>
+                    <h1 class="display-4 fw-bold mb-3 gradient-text">
+                        <span id="typeHeadline"></span><span id="typeCaret" style="font-size: 0.8em; opacity: 0.7;">|</span>
+                    </h1>
+                    <p class="lead mb-5 opacity-90" id="typeSub">Connexion sécurisée pour professionnels de santé</p>
+                    <div class="row g-4 justify-content-center">
+                        <div class="col-4">
+                            <div class="feature-card">
+                                <i class="fas fa-users"></i>
+                                <div class="fw-semibold">Patients</div>
+                                <small class="opacity-75">Gestion complète</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="feature-card">
+                                <i class="fas fa-file-medical"></i>
+                                <div class="fw-semibold">Documents</div>
+                                <small class="opacity-75">Numérisation</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="feature-card">
+                                <i class="fas fa-chart-line"></i>
+                                <div class="fw-semibold">Rapports</div>
+                                <small class="opacity-75">Analytics</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side - Login Form -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center position-relative">
+                <div class="login-form-container">
+                    <div class="text-center mb-5">
+                        <div class="mb-4">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-gradient" style="width: 80px; height: 80px;">
+                                <i class="fas fa-user-shield fa-2x text-white"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold text-dark mb-2">Connexion</h2>
+                        <p class="text-muted mb-0">Accédez à votre espace de travail sécurisé</p>
+                    </div>
+                    
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <!-- Bouton de déconnexion forcée (visible seulement si connecté) -->
+                    {% if user.is_authenticated %}
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Vous êtes déjà connecté en tant que {{ user.username }}</strong>
+                            <br>
+                            <small>Si vous voulez vous connecter avec un autre compte :</small>
+                            <br>
+                            <a href="{% url 'clear_session' %}" class="btn btn-warning btn-sm mt-2">
+                                <i class="fas fa-sign-out-alt me-2"></i>Se déconnecter
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <form method="post" class="login-form" id="loginForm" autocomplete="on">
+                        {% csrf_token %}
+                        <div class="mb-3 position-relative">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" required autocomplete="email" placeholder="nom@exemple.com">
+                        </div>
+                        
+                        <div class="mb-1 position-relative">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-2"></i>Mot de passe
+                            </label>
+                            <input type="password" class="form-control form-control-lg" id="password" name="password" required autocomplete="current-password">
+                            <span class="input-icon" id="togglePassword" title="Afficher/Masquer le mot de passe">
+                                <i class="far fa-eye"></i>
+                            </span>
+                        </div>
+                        <div class="mb-3"><small class="text-warning caps-hint" id="capsHint"><i class="fas fa-exclamation-triangle me-1"></i>Verr. Maj activée</small></div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember">
+                            <label class="form-check-label" for="remember">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 glow-btn" id="submitBtn">
+                            <span class="btn-text"><i class="fas fa-sign-in-alt me-2"></i>Se connecter</span>
+                            <span class="btn-loading d-none"><span class="spinner-border spinner-border-sm me-2"></span>Connexion…</span>
+                        </button>
+                        
+                        <div class="text-center">
+                            <a href="#" class="text-decoration-none">Mot de passe oublié ?</a>
+                        </div>
+                    </form>
+                    
+
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">© 2025 Hôpital AL GHASSANI</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Mot de passe: afficher/masquer
+    (function(){
+        const pwd = document.getElementById('password');
+        const toggle = document.getElementById('togglePassword');
+        if (toggle && pwd) {
+            toggle.addEventListener('click', () => {
+                const isText = pwd.getAttribute('type') === 'text';
+                pwd.setAttribute('type', isText ? 'password' : 'text');
+                toggle.innerHTML = isText ? '<i class="far fa-eye"></i>' : '<i class="far fa-eye-slash"></i>';
+            });
+        }
+
+        // Caps Lock hint
+        const capsHint = document.getElementById('capsHint');
+        pwd?.addEventListener('keyup', (e) => {
+            if (e.getModifierState && e.getModifierState('CapsLock')) {
+                capsHint.style.display = 'inline';
+            } else {
+                capsHint.style.display = 'none';
+            }
+        });
+
+        // Remember me: mémoriser l'email
+        const emailInput = document.getElementById('email');
+        const remember = document.getElementById('remember');
+        const storedEmail = localStorage.getItem('login_email');
+        if (storedEmail) {
+            emailInput.value = storedEmail;
+            remember.checked = true;
+        }
+
+        // Soumission: état de chargement
+        const form = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        form?.addEventListener('submit', () => {
+            submitBtn.disabled = true;
+            submitBtn.querySelector('.btn-text').classList.add('d-none');
+            submitBtn.querySelector('.btn-loading').classList.remove('d-none');
+            if (remember?.checked) {
+                localStorage.setItem('login_email', emailInput.value);
+            } else {
+                localStorage.removeItem('login_email');
+            }
+        });
+        
+        // Typewriter headline + subtitle with enhanced animations
+        const headline = document.getElementById('typeHeadline');
+        const caret = document.getElementById('typeCaret');
+        const subtitle = document.getElementById('typeSub');
+        const mainText = 'Plateforme de numérisation des dossiers médicaux';
+        const speed = 80; // ms per char - visible lettre par lettre
+        let i = 0;
+        
+        function typeNext(){
+            if (!headline) {
+                // Fallback: display text immediately if element not found
+                const fallbackElement = document.querySelector('#typeHeadline');
+                if (fallbackElement) {
+                    fallbackElement.textContent = mainText;
+                }
+                return;
+            }
+            if (i <= mainText.length){
+                headline.textContent = mainText.substring(0, i);
+                i++; 
+                setTimeout(typeNext, speed);
+            } else {
+                // Enhanced caret blinking - plus rapide
+                setInterval(() => { 
+                    if(caret) {
+                        caret.style.visibility = caret.style.visibility === 'hidden' ? 'visible' : 'hidden';
+                    }
+                }, 400);
+                
+                // Fade-in subtitle with delay
+                if (subtitle) { 
+                    subtitle.style.opacity = '0'; 
+                    subtitle.style.transition = 'opacity 1s ease-in-out'; 
+                    setTimeout(() => {
+                        subtitle.style.opacity = '1';
+                        // Animate feature cards
+                        animateFeatureCards();
+                    }, 300); 
+                }
+            }
+        }
+
+        // Animate feature cards on load
+        function animateFeatureCards() {
+            const cards = document.querySelectorAll('.feature-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.6s ease';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 200 + (index * 150));
+            });
+        }
+
+        // Start typewriter effect immediately
+        typeNext();
+
+        // Add hover effects to form elements
+        const formControls = document.querySelectorAll('.form-control');
+        formControls.forEach(control => {
+            control.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
+            });
+            
+            control.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Add ripple effect to button
+        const submitBtnRipple = document.getElementById('submitBtn');
+        if (submitBtnRipple) {
+            submitBtnRipple.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        }
+    })();
+    </script>
+</body>
+</html>

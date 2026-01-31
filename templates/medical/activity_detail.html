@@ -1,0 +1,447 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Détails de la Tâche - Hôpital EL GHASSANI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .detail-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .status-en-cours {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .status-en-attente {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+    }
+    
+    .status-terminee {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+    }
+    
+    .priority-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .priority-elevee {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+    
+    .priority-normale {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .priority-urgente {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+    
+    .vital-signs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .vital-sign-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        border: 2px solid #e9ecef;
+    }
+    
+    .vital-sign-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .vital-sign-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .medication-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid #667eea;
+    }
+    
+    .note-item {
+        background: #fff;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid #28a745;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .instruction-item {
+        background: #e3f2fd;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid #1976d2;
+    }
+    
+    .action-buttons {
+        position: sticky;
+        bottom: 20px;
+        background: white;
+        padding: 1rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+    }
+    
+    .patient-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clipboard-check me-2"></i>Détails de la Tâche
+        </h1>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'activities' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour au Planning
+            </a>
+            <span class="status-badge status-{{ activity.status|lower|cut:' ' }}">
+                {{ activity.status }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-lg-8">
+            <!-- Titre et Description -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>{{ activity.title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ activity.description }}</p>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <strong>Type de tâche :</strong> {{ activity.task_type }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Priorité :</strong>
+                            <span class="priority-badge priority-{{ activity.priority|lower|cut:'é' }}">
+                                {{ activity.priority }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations Patient -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Informations Patient
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="patient-info">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>{{ activity.patient }}</h4>
+                                <p class="mb-0">ID Patient: {{ activity.patient_id }}</p>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <h5>Chambre {{ activity.room }}</h5>
+                                <p class="mb-0">Médecin: {{ activity.doctor }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Médicaments -->
+            {% if activity.medications %}
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-pills me-2"></i>Médicaments à Administrer
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for med in activity.medications %}
+                    <div class="medication-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-1">{{ med.name }}</h6>
+                                <small class="text-muted">Dosage: {{ med.dosage }}</small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <span class="badge bg-primary">{{ med.time }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Signes vitaux -->
+            {% if activity.vital_signs %}
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heartbeat me-2"></i>Signes Vitaux
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="vital-signs-grid">
+                        <div class="vital-sign-card">
+                            <div class="vital-sign-value">{{ activity.vital_signs.blood_pressure }}</div>
+                            <div class="vital-sign-label">Tension Artérielle</div>
+                        </div>
+                        <div class="vital-sign-card">
+                            <div class="vital-sign-value">{{ activity.vital_signs.heart_rate }}</div>
+                            <div class="vital-sign-label">Rythme Cardiaque</div>
+                        </div>
+                        <div class="vital-sign-card">
+                            <div class="vital-sign-value">{{ activity.vital_signs.temperature }}</div>
+                            <div class="vital-sign-label">Température</div>
+                        </div>
+                        <div class="vital-sign-card">
+                            <div class="vital-sign-value">{{ activity.vital_signs.oxygen_saturation }}</div>
+                            <div class="vital-sign-label">Saturation O₂</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Instructions -->
+            {% if activity.instructions %}
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-check me-2"></i>Instructions Spéciales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for instruction in activity.instructions %}
+                    <div class="instruction-item">
+                        <i class="fas fa-arrow-right me-2"></i>{{ instruction }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Notes de suivi -->
+            {% if activity.notes %}
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sticky-note me-2"></i>Notes de Suivi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for note in activity.notes %}
+                    <div class="note-item">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p class="mb-1">{{ note.text }}</p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <small class="text-muted">{{ note.time }}</small>
+                                <br>
+                                <small class="text-primary">{{ note.nurse }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Planning -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Planning
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h5 text-primary">{{ activity.scheduled_time }}</div>
+                            <small class="text-muted">Heure Prévue</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h5 text-success">{{ activity.started_at }}</div>
+                            <small class="text-muted">Démarrée à</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <div class="h6 text-info">{{ activity.estimated_duration }}</div>
+                        <small class="text-muted">Durée Estimée</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Équipe -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Équipe Assignée
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-user-nurse fa-2x text-primary me-3"></i>
+                        <div>
+                            <h6 class="mb-0">{{ activity.assigned_nurse }}</h6>
+                            <small class="text-muted">Infirmière Assignée</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-md fa-2x text-success me-3"></i>
+                        <div>
+                            <h6 class="mb-0">{{ activity.doctor }}</h6>
+                            <small class="text-muted">Médecin Prescripteur</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="action-buttons">
+                <h6 class="mb-3">
+                    <i class="fas fa-cogs me-2"></i>Actions
+                </h6>
+                <div class="d-grid gap-2">
+                    {% if activity.status == 'En attente' %}
+                    <button class="btn btn-success" onclick="startActivity()">
+                        <i class="fas fa-play me-2"></i>Démarrer la Tâche
+                    </button>
+                    {% elif activity.status == 'En cours' %}
+                    <button class="btn btn-primary" onclick="completeActivity()">
+                        <i class="fas fa-check me-2"></i>Marquer comme Terminée
+                    </button>
+                    {% elif activity.status == 'Terminée' %}
+                    <button class="btn btn-info" onclick="addNote()">
+                        <i class="fas fa-plus me-2"></i>Ajouter une Note
+                    </button>
+                    {% endif %}
+                    <button class="btn btn-outline-secondary" onclick="printTask()">
+                        <i class="fas fa-print me-2"></i>Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function startActivity() {
+    if (confirm('Démarrer cette tâche maintenant ?')) {
+        showNotification('Tâche démarrée avec succès', 'fas fa-play', 'success');
+        // Simuler le démarrage
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+}
+
+function completeActivity() {
+    if (confirm('Marquer cette tâche comme terminée ?')) {
+        showNotification('Tâche terminée avec succès', 'fas fa-check', 'success');
+        // Simuler la completion
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+}
+
+function addNote() {
+    const note = prompt('Ajouter une note de suivi :');
+    if (note && note.trim()) {
+        showNotification('Note ajoutée avec succès', 'fas fa-sticky-note', 'success');
+    }
+}
+
+function printTask() {
+    window.print();
+}
+
+function showNotification(message, icon, type = 'info') {
+    const notification = document.createElement('div');
+    const alertClass = type === 'success' ? 'success' : type;
+    notification.className = `alert alert-${alertClass} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        <i class="${icon} me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// Auto-refresh des signes vitaux toutes les 30 secondes
+setInterval(() => {
+    // Simuler une mise à jour des signes vitaux
+    console.log('Mise à jour des signes vitaux...');
+}, 30000);
+</script>
+{% endblock %}
+
+

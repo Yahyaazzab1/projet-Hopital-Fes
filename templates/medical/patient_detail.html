@@ -1,0 +1,347 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Patient - {{ patient.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header avec photo du patient -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-lg me-4">
+                            <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px; font-size: 42px; font-weight: bold;">
+                                {{ patient.first_name|first}}{{ patient.last_name|first }}
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h2 class="mb-2">
+                                <i class="fas fa-user-circle me-2"></i>
+                                {{ patient.get_full_name }}
+                            </h2>
+                            <div class="d-flex flex-wrap gap-3">
+                                <span><i class="fas fa-id-card me-2"></i>{{ patient.patient_id }}</span>
+                                <span><i class="fas fa-birthday-cake me-2"></i>{{ age }} ans</span>
+                                <span><i class="fas fa-{% if patient.gender == 'F' %}female{% else %}male{% endif %} me-2"></i>{{ patient.get_gender_display }}</span>
+                                <span class="badge {% if patient.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} fs-6">
+                                    {{ patient.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <a href="{% url 'patients' %}" class="btn btn-light me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Retour
+                            </a>
+                            <a href="{% url 'edit_patient' patient.id %}" class="btn btn-warning">
+                                <i class="fas fa-edit me-2"></i>Modifier
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Colonne gauche -->
+        <div class="col-lg-8">
+            <!-- Informations personnelles -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Informations Personnelles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Nom Complet</label>
+                                <p class="fw-bold mb-0">{{ patient.first_name }} {{ patient.last_name }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Carte d'Identité</label>
+                                <p class="fw-bold mb-0">{{ patient.ci }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Date de Naissance</label>
+                                <p class="fw-bold mb-0">
+                                    <i class="fas fa-calendar me-2"></i>{{ patient.date_of_birth|date:"d/m/Y" }}
+                                    <span class="text-muted">({{ age }} ans)</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Groupe Sanguin</label>
+                                <p class="fw-bold mb-0">
+                                    <span class="badge bg-danger">{{ patient.blood_type|default:"Non renseigné" }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-address-book me-2"></i>Informations de Contact</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Téléphone</label>
+                                <p class="fw-bold mb-0">
+                                    <i class="fas fa-phone me-2 text-success"></i>
+                                    <a href="tel:{{ patient.phone }}" class="text-decoration-none">{{ patient.phone }}</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Email</label>
+                                <p class="fw-bold mb-0">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>
+                                    <a href="mailto:{{ patient.email }}" class="text-decoration-none">{{ patient.email|default:"Non renseigné" }}</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Adresse</label>
+                                <p class="mb-0">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                    {{ patient.address }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Ville</label>
+                                <p class="mb-0">
+                                    <i class="fas fa-city me-2 text-secondary"></i>
+                                    {{ patient.city|default:"Non renseigné" }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Contact d'Urgence</label>
+                                <p class="fw-bold mb-0">
+                                    <i class="fas fa-phone-square me-2 text-warning"></i>
+                                    {{ patient.emergency_contact|default:"Non renseigné" }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="info-group">
+                                <label class="text-muted small">Assurance</label>
+                                <p class="mb-0">
+                                    <i class="fas fa-shield-alt me-2 text-info"></i>
+                                    {{ patient.insurance|default:"Non renseigné" }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations médicales -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Informations Médicales</h5>
+                </div>
+                <div class="card-body">
+                    {% if patient.allergies %}
+                    <div class="alert alert-warning mb-3">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Allergies</h6>
+                        <p class="mb-0">{{ patient.allergies }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if patient.medical_history %}
+                    <div class="mb-3">
+                        <label class="text-muted small">Historique Médical</label>
+                        <div class="p-3 bg-light rounded">
+                            {{ patient.medical_history|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if patient.notes %}
+                    <div class="mb-3">
+                        <label class="text-muted small">Notes</label>
+                        <div class="p-3 bg-light rounded">
+                            {{ patient.notes|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Documents récents -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Documents Récents</h5>
+                </div>
+                <div class="card-body">
+                    {% if documents %}
+                        <div class="list-group list-group-flush">
+                            {% for doc in documents %}
+                            <a href="{% url 'view_document' doc.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-file-medical text-primary me-2"></i>
+                                        <strong>{{ doc.title }}</strong>
+                                        <small class="text-muted d-block">{{ doc.created_at|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                    <span class="badge bg-primary">{{ doc.get_document_type_display }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">Aucun document pour ce patient</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Rapports récents -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-medical-alt me-2"></i>Rapports Récents</h5>
+                </div>
+                <div class="card-body">
+                    {% if reports %}
+                        <div class="list-group list-group-flush">
+                            {% for report in reports %}
+                            <a href="{% url 'view_report' report.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-notes-medical text-success me-2"></i>
+                                        <strong>{{ report.title }}</strong>
+                                        <small class="text-muted d-block">{{ report.created_at|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                    <span class="badge bg-success">{{ report.get_report_type_display }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">Aucun rapport pour ce patient</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite -->
+        <div class="col-lg-4">
+            <!-- Informations complémentaires -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations Complémentaires</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Profession</label>
+                        <p class="mb-0">{{ patient.occupation|default:"Non renseigné" }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Situation Familiale</label>
+                        <p class="mb-0">{{ patient.get_marital_status_display|default:"Non renseigné" }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Dernière Visite</label>
+                        <p class="mb-0">
+                            {% if patient.last_visit %}
+                                {{ patient.last_visit|date:"d/m/Y H:i" }}
+                            {% else %}
+                                Jamais
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métadonnées -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0"><i class="fas fa-database me-2"></i>Métadonnées</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted">Créé le</small>
+                        <div class="fw-bold">{{ patient.created_at|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Modifié le</small>
+                        <div class="fw-bold">{{ patient.updated_at|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Créé par</small>
+                        <div class="fw-bold">{{ patient.created_by.get_full_name|default:"Système" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions Rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit_patient' patient.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>Modifier le Patient
+                        </a>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Imprimer
+                        </button>
+                        <a href="{% url 'scanner' %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-camera me-2"></i>Scanner un Document
+                        </a>
+                        <a href="{% url 'report_add' %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-file-medical me-2"></i>Nouveau Rapport
+                        </a>
+                        <form method="POST" action="{% url 'delete_patient' patient.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce patient ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                <i class="fas fa-trash me-2"></i>Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.info-group {
+    padding: 10px;
+    border-radius: 5px;
+    background: #f8f9fa;
+}
+
+.info-group:hover {
+    background: #e9ecef;
+}
+
+.avatar-lg {
+    flex-shrink: 0;
+}
+
+@media print {
+    .btn, .card-header, nav {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

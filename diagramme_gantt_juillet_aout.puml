@@ -1,0 +1,31 @@
+@startgantt
+title Diagramme de Gantt - Période Juillet-Août 2025
+printscale weekly
+calendar day
+
+project starts 2025-07-01
+project ends 2025-08-14
+
+-- Phase 1 : Finalisation du développement
+[Module Patients] lasts 10 days
+[Module Documents] lasts 12 days
+[Module Rapports] lasts 8 days
+
+-- Phase 2 : Documentation
+[Documentation technique] starts 2025-07-11 and lasts 10 days
+[Documentation utilisateur] starts 2025-07-18 and lasts 8 days
+[Manuel de formation] starts 2025-07-25 and lasts 5 days
+
+-- Phase 3 : Déploiement
+[Configuration serveur] starts 2025-07-29 and lasts 5 days
+[Migration données] starts 2025-08-03 and lasts 4 days
+[Vérification déploiement] starts 2025-08-07 and lasts 4 days
+
+-- Jalons
+[MVP Fonctionnel] happens 2025-07-10
+[Documentation terminée] happens 2025-07-30
+[Prêt pour production] happens 2025-08-11
+[Go-Live] happens 2025-08-14
+
+@endgantt
+

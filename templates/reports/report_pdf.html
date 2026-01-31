@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport Médical - {{ report.title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .hospital-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+            background: #2c3e50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .hospital-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .hospital-details {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .report-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            margin: 30px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid #007bff;
+        }
+        
+        .patient-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .patient-info h3 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+            font-size: 16px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            width: 120px;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .report-content {
+            margin: 20px 0;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .content-text {
+            text-align: justify;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .diagnosis-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .treatment-box {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            background: #f8f9fa;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        
+        .signature-box {
+            text-align: center;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            margin-top: 50px;
+        }
+        
+        .signature-label {
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .priority-normal {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .priority-high {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .priority-urgent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-validated {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .ai-insights {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .ai-insights h4 {
+            color: #28a745;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .confidence-score {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête avec logo de l'hôpital -->
+    <div class="header">
+        <div class="hospital-logo">
+            🏥
+        </div>
+        <div class="hospital-name">{{ hospital_info.name }}</div>
+        <div class="hospital-details">
+            {{ hospital_info.address }}<br>
+            Tél: {{ hospital_info.phone }} | Email: {{ hospital_info.email }}
+        </div>
+    </div>
+
+    <!-- Titre du rapport -->
+    <div class="report-title">
+        {{ report.title }}
+    </div>
+
+    <!-- Informations patient -->
+    <div class="patient-info">
+        <h3>📋 Informations Patient</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Nom complet:</span>
+                <span class="info-value">{{ report.patient.get_full_name|default:"Non spécifié" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">ID Patient:</span>
+                <span class="info-value">{{ report.patient.patient_id|default:"N/A" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Date de naissance:</span>
+                <span class="info-value">{{ report.patient.date_of_birth|date:"d/m/Y"|default:"Non spécifié" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Genre:</span>
+                <span class="info-value">{{ report.patient.get_gender_display|default:"Non spécifié" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations du rapport -->
+    <div class="section">
+        <div class="section-title">📊 Informations du Rapport</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Type de rapport:</span>
+                <span class="info-value">{{ report.get_report_type_display }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Date du rapport:</span>
+                <span class="info-value">{{ report.report_date|date:"d/m/Y à H:i" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Médecin:</span>
+                <span class="info-value">{{ report.created_by.get_full_name|default:"Non spécifié" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Statut:</span>
+                <span class="status-badge status-{{ report.status }}">{{ report.get_status_display }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Priorité:</span>
+                <span class="priority-badge priority-{{ report.priority }}">{{ report.get_priority_display }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résumé du rapport -->
+    {% if report.summary %}
+    <div class="section">
+        <div class="section-title">📝 Résumé</div>
+        <div class="content-text">{{ report.summary|linebreaks }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Diagnostic -->
+    {% if report.diagnosis %}
+    <div class="section">
+        <div class="section-title">🔍 Diagnostic</div>
+        <div class="diagnosis-box">
+            {{ report.diagnosis|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Traitement -->
+    {% if report.treatment %}
+    <div class="section">
+        <div class="section-title">💊 Traitement</div>
+        <div class="treatment-box">
+            {{ report.treatment|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Détails du rapport -->
+    {% if report.details %}
+    <div class="section">
+        <div class="section-title">📋 Détails Complets</div>
+        <div class="content-text">{{ report.details|linebreaks }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Insights IA -->
+    {% if report.ai_processed %}
+    <div class="section">
+        <div class="ai-insights">
+            <h4>🤖 Analyse par Intelligence Artificielle</h4>
+            {% if report.ai_confidence %}
+            <span class="confidence-score">Confiance: {{ report.ai_confidence|floatformat:1 }}%</span>
+            {% endif %}
+            {% if report.ai_recommendations %}
+            <div class="content-text">
+                <strong>Recommandations:</strong><br>
+                {{ report.ai_recommendations|linebreaks }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Commentaires administratifs -->
+    {% if report.admin_comment %}
+    <div class="section">
+        <div class="section-title">📋 Commentaires Administratifs</div>
+        <div class="content-text">{{ report.admin_comment|linebreaks }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Signatures -->
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-label">Signature du Médecin</div>
+            <div style="height: 40px;"></div>
+            <div>{{ report.created_by.get_full_name|default:"Dr. [Nom]" }}</div>
+            <div style="font-size: 12px; color: #666;">Date: {{ report.report_date|date:"d/m/Y" }}</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-label">Validation Administrative</div>
+            <div style="height: 40px;"></div>
+            <div>{{ report.validated_by.get_full_name|default:"[Nom Administrateur]" }}</div>
+            <div style="font-size: 12px; color: #666;">Date: {{ report.validation_date|date:"d/m/Y"|default:"[Date]" }}</div>
+        </div>
+    </div>
+
+    <!-- Pied de page -->
+    <div class="footer">
+        <div class="footer-content">
+            <div>
+                <strong>{{ hospital_info.name }}</strong> - Rapport médical généré le {{ generated_at|date:"d/m/Y à H:i" }}
+            </div>
+            <div>
+                Généré par: {{ generated_by }} | Page 1/1
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+

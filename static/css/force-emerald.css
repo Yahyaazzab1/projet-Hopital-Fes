@@ -1,0 +1,84 @@
+/* FORCER LA COULEUR ÉMERAUDE - STYLES PRIORITAIRES */
+/* Ce fichier force la couleur émeraude sur tous les éléments */
+
+/* Navbar - Force absolue */
+.navbar,
+.navbar.navbar-expand-lg,
+.navbar.navbar-expand-lg.navbar-dark,
+.navbar.navbar-expand-lg.navbar-dark.modern-navbar,
+nav.navbar,
+nav.navbar.navbar-expand-lg,
+nav.navbar.navbar-expand-lg.navbar-dark,
+.modern-navbar,
+.modern-navbar.navbar,
+.modern-navbar.navbar-expand-lg,
+.modern-navbar.navbar-expand-lg.navbar-dark,
+.navbar-dark {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #10b981 !important;
+    background-image: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+/* Override Bootstrap navbar-dark */
+.navbar-dark {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #10b981 !important;
+}
+
+/* Forcer tous les éléments avec la classe modern-navbar */
+.modern-navbar {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #10b981 !important;
+}
+
+/* Boutons primaires */
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+}
+
+/* Cartes avec bordure émeraude */
+.card-emerald,
+.card-emerald .card-header {
+    border-left: 4px solid #10b981 !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+/* Tables émeraude */
+.table-emerald th,
+.table-emerald thead th {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #10b981 !important;
+    border-bottom: 3px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Textes émeraude */
+.text-emerald {
+    color: #10b981 !important;
+}
+
+/* Icônes émeraude */
+.table-icon-emerald {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #10b981 !important;
+}
+
+/* Badges émeraude */
+.badge-success,
+.badge.badge-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #10b981 !important;
+}
+
+/* Override spécifique pour tous les éléments mauve */
+[style*="667eea"],
+[style*="764ba2"] {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #10b981 !important;
+}
+
+

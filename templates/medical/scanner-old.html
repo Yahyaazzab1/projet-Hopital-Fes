@@ -1,0 +1,1131 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/scanner.css' %}" rel="stylesheet">
+<style>
+/* Scanner Modern Design */
+.scanner-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.scanner-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+.scanner-content {
+    position: relative;
+    z-index: 2;
+}
+
+.scanner-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.scanner-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.scanner-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.scanner-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.scanner-btn {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.scanner-btn:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.scanner-btn.active {
+    background: rgba(255,255,255,0.9);
+    color: #667eea;
+    border-color: white;
+}
+
+.scanner-preview {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.scanner-placeholder {
+    text-align: center;
+    color: #6c757d;
+}
+
+.scanner-placeholder i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.scanner-placeholder h4 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.scanner-placeholder p {
+    margin-bottom: 0;
+    opacity: 0.8;
+}
+
+.camera-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.camera-preview {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.camera-preview video {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #000;
+}
+
+.scan-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.scan-frame {
+    width: 300px;
+    height: 400px;
+    border: 3px solid #00ff88;
+    border-radius: 12px;
+    background: transparent;
+    position: relative;
+    animation: pulse 2s infinite;
+}
+
+.scan-frame::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 2px solid rgba(0, 255, 136, 0.3);
+    border-radius: 12px;
+    animation: scan 3s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes scan {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.scan-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    padding: 2rem;
+    border-radius: 0 0 16px 16px;
+}
+
+.scan-controls .btn {
+    margin: 0 0.5rem;
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+
+.captured-image {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.captured-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.captured-image:hover .image-overlay {
+    opacity: 1;
+}
+
+.image-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.image-controls .btn {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-icon.primary { background: linear-gradient(135deg, #667eea, #764ba2); }
+.stat-icon.success { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.stat-icon.warning { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.stat-icon.info { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #718096;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.recent-scans {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.recent-scans-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+.recent-scans-header h6 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.scan-item {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.3s ease;
+}
+
+.scan-item:last-child {
+    border-bottom: none;
+}
+
+.scan-item:hover {
+    background: #f8f9fa;
+}
+
+.scan-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+    color: white;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.scan-content {
+    flex: 1;
+}
+
+.scan-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.scan-time {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-bottom: 0.5rem;
+}
+
+.scan-details .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+.scan-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.scan-actions .btn {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.processing-steps {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+}
+
+.processing-step {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.processing-step:last-child {
+    border-bottom: none;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1rem;
+    color: white;
+}
+
+.step-icon.active { background: #007bff; }
+.step-icon.completed { background: #28a745; }
+.step-icon.pending { background: #6c757d; }
+
+.step-content {
+    flex: 1;
+}
+
+.step-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.step-status .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .scanner-container {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .scanner-header h2 {
+        font-size: 2rem;
+    }
+    
+    .scanner-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .scanner-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .scan-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .scan-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .scan-actions {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+}
+
+/* Animation pour les éléments qui apparaissent */
+.fade-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading animation */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block title %}Scanner - Hôpital EL GHASSANI{% endblock %}
+
+{% block content %}
+<!-- Scanner Principal -->
+<div class="scanner-container fade-in">
+    <div class="scanner-content">
+        <div class="scanner-header">
+            <h2><i class="fas fa-qrcode me-3"></i>Scanner Intelligent</h2>
+            <p>Numérisez vos documents médicaux avec précision et efficacité</p>
+        </div>
+        
+        <div class="scanner-actions">
+            <button class="scanner-btn" onclick="startScanning()" id="startScanBtn">
+                <i class="fas fa-play me-2"></i>Démarrer la Numérisation
+            </button>
+            <button class="scanner-btn" onclick="uploadFile()" id="uploadBtn">
+                <i class="fas fa-upload me-2"></i>Importer Fichier
+            </button>
+            <button class="scanner-btn" onclick="startBatchScan()" id="batchBtn">
+                <i class="fas fa-layer-group me-2"></i>Scan en Lot
+            </button>
+        </div>
+        
+        <div class="scanner-preview" id="scanPreview">
+            <div class="scanner-placeholder">
+                <i class="fas fa-camera"></i>
+                <h4>Prêt à Scanner</h4>
+                <p>Choisissez une option ci-dessus pour commencer</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques du Scanner -->
+<div class="stats-grid fade-in">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-number">{{ total_scans|default:"0" }}</div>
+        <div class="stat-label">Documents Scannés</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-calendar-day"></i>
+        </div>
+        <div class="stat-number">{{ scans_today|default:"0" }}</div>
+        <div class="stat-label">Aujourd'hui</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="stat-number">{{ ai_processed|default:"0" }}</div>
+        <div class="stat-label">Traités par IA</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-number">{{ quality_score|default:"95" }}%</div>
+        <div class="stat-label">Qualité Moyenne</div>
+    </div>
+</div>
+
+<!-- Étapes de Traitement -->
+<div class="processing-steps fade-in" id="processingSteps" style="display: none;">
+    <h5 class="mb-3"><i class="fas fa-cogs me-2"></i>Étapes de Traitement</h5>
+    <div class="processing-step" id="step1">
+        <div class="step-icon active">
+            <i class="fas fa-camera"></i>
+        </div>
+        <div class="step-content">
+            <div class="step-name">Numérisation</div>
+            <div class="step-status">
+                <span class="badge bg-primary">En cours</span>
+            </div>
+        </div>
+    </div>
+    <div class="processing-step" id="step2">
+        <div class="step-icon pending">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="step-content">
+            <div class="step-name">Validation</div>
+            <div class="step-status">
+                <span class="badge bg-secondary">En attente</span>
+            </div>
+        </div>
+    </div>
+    <div class="processing-step" id="step3">
+        <div class="step-icon pending">
+            <i class="fas fa-tags"></i>
+        </div>
+        <div class="step-content">
+            <div class="step-name">Classification</div>
+            <div class="step-status">
+                <span class="badge bg-secondary">En attente</span>
+            </div>
+        </div>
+    </div>
+    <div class="processing-step" id="step4">
+        <div class="step-icon pending">
+            <i class="fas fa-eye"></i>
+        </div>
+        <div class="step-content">
+            <div class="step-name">Reconnaissance</div>
+            <div class="step-status">
+                <span class="badge bg-secondary">En attente</span>
+            </div>
+        </div>
+    </div>
+    <div class="processing-step" id="step5">
+        <div class="step-icon pending">
+            <i class="fas fa-database"></i>
+        </div>
+        <div class="step-content">
+            <div class="step-name">Indexation</div>
+            <div class="step-status">
+                <span class="badge bg-secondary">En attente</span>
+            </div>
+        </div>
+    </div>
+    <div class="processing-step" id="step6">
+        <div class="step-icon pending">
+            <i class="fas fa-archive"></i>
+        </div>
+        <div class="step-content">
+            <div class="step-name">Archivage</div>
+            <div class="step-status">
+                <span class="badge bg-secondary">En attente</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scans Récents -->
+<div class="recent-scans fade-in">
+    <div class="recent-scans-header">
+        <h6><i class="fas fa-history me-2"></i>Scans Récents</h6>
+    </div>
+    <div class="card-body p-0">
+        {% if user_role == 'admin' %}
+        <!-- Section Admin : Rapports scannés récents -->
+        <div class="scan-item">
+            <div class="scan-icon">
+                <i class="fas fa-x-ray"></i>
+            </div>
+            <div class="scan-content">
+                <div class="scan-name">Rapport de Radiographie - Abdomen</div>
+                <div class="scan-time">Scanné le 01/10/2025 à 14:30</div>
+                <div class="scan-details mt-1">
+                    <span class="badge bg-primary me-2">Radiologie</span>
+                    <span class="badge bg-success">Traitement IA terminé</span>
+                </div>
+            </div>
+            <div class="scan-actions">
+                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewScannedReport(1)">
+                    <i class="fas fa-eye"></i> Voir
+                </button>
+                <button class="btn btn-sm btn-outline-success" onclick="downloadScannedReport(1)">
+                    <i class="fas fa-download"></i> Télécharger
+                </button>
+            </div>
+        </div>
+
+        <div class="scan-item">
+            <div class="scan-icon">
+                <i class="fas fa-vial"></i>
+            </div>
+            <div class="scan-content">
+                <div class="scan-name">Résultats d'Analyses de Laboratoire</div>
+                <div class="scan-time">Scanné le 01/10/2025 à 15:45</div>
+                <div class="scan-details mt-1">
+                    <span class="badge bg-info me-2">Laboratoire</span>
+                    <span class="badge bg-warning">En cours de traitement IA</span>
+                </div>
+            </div>
+            <div class="scan-actions">
+                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewScannedReport(2)">
+                    <i class="fas fa-eye"></i> Voir
+                </button>
+                <button class="btn btn-sm btn-outline-success" onclick="downloadScannedReport(2)">
+                    <i class="fas fa-download"></i> Télécharger
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <!-- Section Médecin/Infirmier : Mes documents récents -->
+        {% if total_scans > 0 %}
+        <div class="scan-item">
+            <div class="scan-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="scan-content">
+                <div class="scan-name">Statistiques de Scan</div>
+                <div class="scan-time">Dernière mise à jour: {{ "now"|date:"d/m/Y H:i" }}</div>
+                <div class="scan-details mt-1">
+                    <span class="badge bg-primary me-2">{{ total_scans }} documents</span>
+                    {% if scans_today > 0 %}
+                    <span class="badge bg-success">{{ scans_today }} aujourd'hui</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="scan-actions">
+                <a href="{% url 'documents' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-folder-open"></i> Voir tous
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="scan-item">
+            <div class="scan-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="scan-content">
+                <div class="scan-name">Aucun document scanné</div>
+                <div class="scan-time">Commencez par scanner vos premiers documents</div>
+                <div class="scan-details mt-1">
+                    <span class="badge bg-warning">En attente</span>
+                </div>
+            </div>
+            <div class="scan-actions">
+                <button class="btn btn-sm btn-primary" onclick="startScanning()">
+                    <i class="fas fa-play"></i> Commencer
+                </button>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/scanner-modern.js' %}"></script>
+<script>
+// Le JavaScript principal est maintenant dans scanner-modern.js
+// Ce script ne contient que les fonctions de compatibilité
+async function startCamera() {
+    try {
+        console.log('Démarrage de la caméra...');
+        
+        const mediaDevices = await navigator.mediaDevices.enumerateDevices();
+        devices = mediaDevices.filter(device => device.kind === 'videoinput');
+        
+        if (devices.length === 0) {
+            alert('Aucune caméra détectée sur cet appareil.');
+        return;
+    }
+
+        const constraints = {
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'environment'
+            }
+        };
+        
+        if (currentDeviceId) {
+            constraints.video.deviceId = { exact: currentDeviceId };
+        }
+        
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        
+        document.getElementById('cameraContainer').style.display = 'block';
+        document.getElementById('startCameraBtn').style.display = 'none';
+        document.getElementById('captureBtn').style.display = 'inline-block';
+        document.getElementById('stopBtn').style.display = 'inline-block';
+        document.getElementById('documentForm').style.display = 'none';
+        
+        console.log('Caméra démarrée avec succès');
+        
+    } catch (error) {
+        console.error('Erreur caméra:', error);
+        let errorMessage = 'Erreur caméra. ';
+        if (error.name === 'NotAllowedError') {
+            errorMessage += 'Permission refusée.';
+        } else if (error.name === 'NotFoundError') {
+            errorMessage += 'Aucune caméra trouvée.';
+        } else {
+            errorMessage += error.message;
+        }
+        alert(errorMessage);
+    }
+}
+
+// Fonction pour capturer une photo
+function capturePhoto() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    
+    const capturedImage = document.getElementById('capturedImage');
+    capturedImage.src = imageData;
+    
+    document.getElementById('cameraContainer').style.display = 'none';
+    document.getElementById('documentForm').style.display = 'block';
+    document.getElementById('captureBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('startCameraBtn').style.display = 'inline-block';
+    
+            stopCamera();
+    console.log('Photo capturée avec succès');
+}
+
+// Fonction pour arrêter la caméra
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+    
+    const video = document.getElementById('video');
+    video.srcObject = null;
+    
+    document.getElementById('cameraContainer').style.display = 'none';
+    document.getElementById('startCameraBtn').style.display = 'inline-block';
+    document.getElementById('captureBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = 'none';
+    
+    console.log('Caméra arrêtée');
+}
+
+// Fonction pour changer de caméra
+async function switchCamera() {
+    if (devices.length <= 1) {
+        alert('Une seule caméra disponible.');
+        return;
+    }
+    
+    let currentIndex = devices.findIndex(device => device.deviceId === currentDeviceId);
+    currentIndex = (currentIndex + 1) % devices.length;
+    currentDeviceId = devices[currentIndex].deviceId;
+    
+    stopCamera();
+    await startCamera();
+    
+    console.log('Caméra changée vers:', devices[currentIndex].label);
+}
+
+// Fonction pour activer/désactiver le flash (simulation)
+function toggleFlash() {
+    isFlashOn = !isFlashOn;
+    const flashBtn = event.target.closest('button');
+    
+    if (isFlashOn) {
+        flashBtn.innerHTML = '<i class="fas fa-flash me-1"></i>Flash ON';
+        flashBtn.classList.remove('btn-outline-secondary');
+        flashBtn.classList.add('btn-warning');
+        
+        document.body.style.backgroundColor = '#ffffff';
+        setTimeout(() => {
+            document.body.style.backgroundColor = '';
+        }, 100);
+    } else {
+        flashBtn.innerHTML = '<i class="fas fa-flash me-1"></i>Flash';
+        flashBtn.classList.remove('btn-warning');
+        flashBtn.classList.add('btn-outline-secondary');
+    }
+    
+    console.log('Flash:', isFlashOn ? 'ON' : 'OFF');
+}
+
+// Fonction pour traiter le document
+function processDocument() {
+    const form = document.getElementById('documentProcessingForm');
+    const formData = new FormData(form);
+    
+    const documentType = document.getElementById('documentType').value;
+    const documentTitle = document.getElementById('documentTitle').value;
+    
+    if (!documentType) {
+        alert('Veuillez sélectionner un type de document.');
+        return;
+    }
+    
+    if (!documentTitle.trim()) {
+        alert('Veuillez saisir un titre pour le document.');
+        return;
+    }
+
+    const capturedImage = document.getElementById('capturedImage');
+    if (capturedImage.src) {
+        formData.append('captured_image', capturedImage.src);
+    }
+    
+    console.log('Traitement du document:', Object.fromEntries(formData));
+    
+    alert('Document traité avec succès !\n\nType: ' + documentType + '\nTitre: ' + documentTitle);
+    
+    cancelProcessing();
+}
+
+// Fonction pour reprendre une photo
+function retakePhoto() {
+    document.getElementById('documentForm').style.display = 'none';
+    startCamera();
+}
+
+// Fonction pour annuler le traitement
+function cancelProcessing() {
+    document.getElementById('documentForm').style.display = 'none';
+    document.getElementById('capturedImage').src = '';
+    document.getElementById('documentProcessingForm').reset();
+    console.log('Traitement annulé');
+}
+
+// Fonction pour démarrer le scanner (ancienne fonction)
+function startScanner() {
+    startCamera();
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Scanner initialisé');
+    
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Votre navigateur ne supporte pas l\'accès à la caméra. Veuillez utiliser un navigateur moderne.');
+    }
+});
+
+// Fonctions pour gérer les rapports scannés (Admin seulement)
+function viewScannedReport(reportId) {
+    console.log(`Visualisation du rapport scanné ${reportId}`);
+    
+    // Données simulées des rapports
+    const reports = {
+        1: {
+            title: "Rapport de Radiographie - Abdomen",
+            type: "Radiologie",
+            date: "01/10/2025 à 14:30",
+            patient: "Patient anonyme",
+            status: "Traitement IA terminé",
+            content: `
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-x-ray me-2"></i>Rapport de Radiographie</h6>
+                    <p><strong>Examen :</strong> Radiographie de l'abdomen sans préparation</p>
+                    <p><strong>Date :</strong> 01/10/2025</p>
+                    <p><strong>Technique :</strong> Radiographie standard</p>
+                    <p><strong>Résultats :</strong> Abdomen sans signe de pneumopéritoine. Structures abdominales normales.</p>
+                    <p><strong>Conclusion :</strong> Abdomen sans anomalie significative.</p>
+                    <p><strong>Médecin :</strong> Dr. Radiologue</p>
+                </div>
+            `
+        },
+        2: {
+            title: "Résultats d'Analyses de Laboratoire",
+            type: "Laboratoire",
+            date: "01/10/2025 à 15:45",
+            patient: "Patient anonyme",
+            status: "En cours de traitement IA",
+            content: `
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-vial me-2"></i>Résultats de Laboratoire</h6>
+                    <p><strong>Date de prélèvement :</strong> 01/10/2025</p>
+                    <p><strong>Hémoglobine :</strong> 13.2 g/dL (N: 12-16)</p>
+                    <p><strong>Glucose :</strong> 95 mg/dL (N: 70-110)</p>
+                    <p><strong>Cholestérol :</strong> 185 mg/dL (N: <200)</p>
+                    <p><strong>Créatinine :</strong> 0.9 mg/dL (N: 0.6-1.2)</p>
+                    <p><strong>Statut :</strong> Analyses en cours de traitement par IA</p>
+                </div>
+            `
+        }
+    };
+    
+    const report = reports[reportId];
+    if (!report) {
+        alert('Rapport non trouvé');
+        return;
+    }
+    
+    // Créer et afficher le modal
+    showReportModal(report);
+}
+
+function showReportModal(report) {
+    console.log('Affichage du modal pour le rapport:', report.title);
+    
+    // Supprimer l'ancien modal s'il existe
+    const existingModal = document.getElementById('scannedReportModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Déterminer l'ID du rapport pour le bouton télécharger
+    let reportId = 1;
+    if (report.title.includes('Laboratoire')) {
+        reportId = 2;
+    }
+    
+    const modalHTML = `
+        <div class="modal fade" id="scannedReportModal" tabindex="-1" aria-labelledby="scannedReportModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="scannedReportModalLabel">
+                            <i class="fas fa-file-medical me-2"></i>${report.title}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Type :</strong> ${report.type}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Date :</strong> ${report.date}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Patient :</strong> ${report.patient}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Statut :</strong> 
+                                    <span class="badge ${report.status.includes('terminé') ? 'bg-success' : 'bg-warning'}">
+                                        ${report.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="report-content">
+                            ${report.content}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Fermer
+        </button>
+                        <button type="button" class="btn btn-success" onclick="downloadScannedReport(${reportId})">
+                            <i class="fas fa-download me-2"></i>Télécharger
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Ajouter le modal au DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Attendre que le modal soit ajouté au DOM
+    setTimeout(() => {
+        const modalElement = document.getElementById('scannedReportModal');
+        if (modalElement) {
+            // Vérifier si Bootstrap est disponible
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            } else {
+                // Fallback si Bootstrap n'est pas disponible
+                modalElement.style.display = 'block';
+                modalElement.classList.add('show');
+                document.body.classList.add('modal-open');
+            }
+            
+            // Supprimer le modal du DOM quand il est fermé
+            modalElement.addEventListener('hidden.bs.modal', () => {
+                modalElement.remove();
+            });
+        } else {
+            console.error('Le modal n\'a pas pu être créé');
+            alert('Erreur: Impossible d\'afficher le rapport. Vérifiez la console pour plus de détails.');
+        }
+    }, 100);
+}
+
+function downloadScannedReport(reportId) {
+    console.log(`Téléchargement du rapport scanné ${reportId}`);
+    
+    // Simuler le téléchargement
+    const reports = {
+        1: {
+            filename: "rapport_radiographie_abdomen_01_10_2025.pdf",
+            title: "Rapport de Radiographie - Abdomen"
+        },
+        2: {
+            filename: "resultats_laboratoire_01_10_2025.pdf", 
+            title: "Résultats d'Analyses de Laboratoire"
+        }
+    };
+    
+    const report = reports[reportId];
+    if (!report) {
+        alert('Rapport non trouvé');
+        return;
+    }
+    
+    // Créer un lien de téléchargement simulé
+    const link = document.createElement('a');
+    link.href = 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKL01lZGlhQm94IFswIDAgNTk1IDg0Ml0KPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovUmVzb3VyY2VzIDw8Ci9Gb250IDw8Ci9GMSA0IDAgUgo+Pgo+PgovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoyMCA3MDAgVGQKKFJhcHBvcnQgZGUgUmFkaW9ncmFwaGllKSBUagoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYKMDAwMDAwMDAwOSAwMDAwMCBuCjAwMDAwMDAwNTggMDAwMDAgbgowMDAwMDAwMTE1IDAwMDAwIG4KMDAwMDAwMDI2MCAwMDAwMCBuCjAwMDAwMDAzNDUgMDAwMDAgbgp0cmFpbGVyCjw8Ci9TaXplIDYKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjQ0MAolJUVPRg==';
+    link.download = report.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Afficher une notification de succès
+    alert(`Téléchargement de "${report.title}" démarré`);
+}
+</script>
+{% endblock %}
+

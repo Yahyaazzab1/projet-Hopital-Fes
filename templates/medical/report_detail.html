@@ -1,0 +1,179 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Détails du Rapport - {{ report.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-file-medical me-2"></i>{{ report.title }}</h2>
+            <p class="text-muted mb-0">
+                Créé le {{ report.created_at|date:"d/m/Y à H:i" }}
+                {% if report.doctor %}
+                par Dr. {{ report.doctor.get_full_name }}
+                {% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'reports' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            <a href="{% url 'edit_report' report.id %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Imprimer
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations du Rapport</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold text-muted">Patient</label>
+                            <p class="h6">
+                                <i class="fas fa-user me-2"></i>
+                                {{ report.patient.get_full_name }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold text-muted">Type de Rapport</label>
+                            <p>
+                                <span class="badge bg-info">{{ report.get_report_type_display }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold text-muted">Date du Rapport</label>
+                            <p><i class="fas fa-calendar me-2"></i>{{ report.report_date|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold text-muted">Statut</label>
+                            <p>
+                                <span class="badge bg-{% if report.status == 'completed' %}success{% elif report.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                    {{ report.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Résumé</label>
+                        <p>{{ report.summary|default:"Aucun résumé disponible" }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Contenu du Rapport</label>
+                        <div class="p-3 bg-light rounded">
+                            {{ report.content|linebreaks|default:"Aucun contenu disponible" }}
+                        </div>
+                    </div>
+
+                    {% if report.diagnosis %}
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Diagnostic</label>
+                        <p>{{ report.diagnosis }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if report.treatment %}
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Traitement</label>
+                        <p>{{ report.treatment }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if report.recommendations %}
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Recommandations</label>
+                        <p>{{ report.recommendations }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations secondaires -->
+        <div class="col-lg-4">
+            <!-- Métadonnées -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-tags me-2"></i>Métadonnées</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted">ID du Rapport</small>
+                        <div class="fw-bold">#{{ report.id }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Médecin Responsable</small>
+                        <div class="fw-bold">
+                            {% if report.doctor %}
+                                Dr. {{ report.doctor.get_full_name }}
+                            {% else %}
+                                Non assigné
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Créé par</small>
+                        <div class="fw-bold">{{ report.created_by.get_full_name|default:"Système" }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Dernière modification</small>
+                        <div class="fw-bold">{{ report.updated_at|date:"d/m/Y H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions Rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit_report' report.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>Modifier le Rapport
+                        </a>
+                        <a href="{% url 'view_patient' report.patient.id %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-user me-2"></i>Voir le Patient
+                        </a>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Imprimer
+                        </button>
+                        <form method="POST" action="{% url 'delete_report' report.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce rapport ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                <i class="fas fa-trash me-2"></i>Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .card-header, nav {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
+

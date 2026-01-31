@@ -1,0 +1,75 @@
+@startuml Diagramme de cas d'utilisation cote Infirmier
+
+skinparam shadowing false
+skinparam actorStyle awesome
+
+actor Infirmier as "Infirmier"
+
+rectangle "Diagramme de cas d'utilisation cote Infirmier" {
+    circle "Use Case" as CentralUC
+    
+    rectangle "Gestion Authentification" {
+        usecase "Connexion" as UC_Login
+        usecase "Deconnexion" as UC_Logout
+        UC_Login <.. CentralUC : <<extend>>
+        UC_Logout <.. CentralUC : <<extend>>
+        Infirmier --> UC_Login
+        Infirmier --> UC_Logout
+    }
+    
+    rectangle "Gestion des Patients" {
+        usecase "Gestion des patients" as UC_PatientMgmt
+        usecase "Visualiser un patient" as UC_ViewPatient
+        usecase "Rechercher un patient" as UC_SearchPatient
+        usecase "Consulter le dossier patient" as UC_ViewPatientRecord
+        UC_PatientMgmt <.. UC_Login : <<include>>
+        UC_PatientMgmt <.. CentralUC : <<extend>>
+        UC_PatientMgmt <.. UC_ViewPatient : <<extend>>
+        UC_PatientMgmt <.. UC_SearchPatient : <<extend>>
+        UC_PatientMgmt <.. UC_ViewPatientRecord : <<extend>>
+        Infirmier --> UC_PatientMgmt
+    }
+    
+    rectangle "Gestion des Documents" {
+        usecase "Gestion des documents" as UC_DocMgmt
+        usecase "Visualiser un document" as UC_ViewDoc
+        usecase "Rechercher un document" as UC_SearchDoc
+        usecase "Modifier un document" as UC_ModifyDoc
+        usecase "Telecharger un document" as UC_DownloadDoc
+        UC_DocMgmt <.. CentralUC : <<extend>>
+        UC_DocMgmt <.. UC_Login : <<include>>
+        UC_DocMgmt <.. UC_ViewDoc : <<extend>>
+        UC_DocMgmt <.. UC_SearchDoc : <<extend>>
+        UC_DocMgmt <.. UC_ModifyDoc : <<extend>>
+        UC_DocMgmt <.. UC_DownloadDoc : <<extend>>
+        Infirmier --> UC_DocMgmt
+    }
+    
+    rectangle "Gestion des Rapports" {
+        usecase "Gestion des rapports" as UC_ReportMgmt
+        usecase "Visualiser un rapport" as UC_ViewReport
+        usecase "Rechercher un rapport" as UC_SearchReport
+        usecase "Exporter un rapport" as UC_ExportReport
+        usecase "Consulter l'historique" as UC_ViewHistory
+        UC_ReportMgmt <.. CentralUC : <<extend>>
+        UC_ReportMgmt <.. UC_ViewReport : <<extend>>
+        UC_ReportMgmt <.. UC_SearchReport : <<extend>>
+        UC_ReportMgmt <.. UC_ExportReport : <<extend>>
+        UC_ReportMgmt <.. UC_ViewHistory : <<extend>>
+        Infirmier --> UC_ReportMgmt
+    }
+}
+
+note right of Infirmier
+    **Infirmier**
+    - Visualisation des patients
+    - Consultation des dossiers medicaux
+    - Visualisation des documents
+    - Consultation des rapports
+    - Acces en lecture seule
+end note
+
+@enduml
+
+
+

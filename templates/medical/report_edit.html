@@ -1,0 +1,166 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Modifier le Rapport - {{ report.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-edit me-2"></i>Modifier le Rapport</h2>
+            <p class="text-muted mb-0">{{ report.title }}</p>
+        </div>
+        <a href="{% url 'view_report' report.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-medical me-2"></i>Formulaire de Modification</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'edit_report' report.id %}">
+                        {% csrf_token %}
+
+                        <!-- Patient -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Patient *</label>
+                            <select class="form-select" name="patient" required>
+                                <option value="">Sélectionner un patient...</option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.id }}" {% if patient.id == report.patient.id %}selected{% endif %}>
+                                        {{ patient.get_full_name }} - {{ patient.patient_id }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Titre -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Titre du Rapport *</label>
+                            <input type="text" class="form-control" name="title" value="{{ report.title }}" required>
+                        </div>
+
+                        <!-- Type de Rapport -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Type de Rapport *</label>
+                            <select class="form-select" name="report_type" required>
+                                <option value="">Sélectionner...</option>
+                                {% for value, label in report_types %}
+                                    <option value="{{ value }}" {% if value == report.report_type %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Médecin -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Médecin Responsable</label>
+                            <select class="form-select" name="doctor">
+                                <option value="">Non assigné</option>
+                                {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}" {% if report.doctor and doctor.id == report.doctor.id %}selected{% endif %}>
+                                        Dr. {{ doctor.get_full_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Date du Rapport -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Date du Rapport *</label>
+                            <input type="date" class="form-control" name="report_date" 
+                                   value="{{ report.report_date|date:'Y-m-d' }}" required>
+                        </div>
+
+                        <!-- Résumé -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Résumé</label>
+                            <textarea class="form-control" name="summary" rows="3" 
+                                      placeholder="Résumé bref du rapport...">{{ report.summary }}</textarea>
+                        </div>
+
+                        <!-- Contenu -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Contenu du Rapport</label>
+                            <textarea class="form-control" name="content" rows="6" 
+                                      placeholder="Détails complets du rapport...">{{ report.content }}</textarea>
+                        </div>
+
+                        <!-- Diagnostic -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Diagnostic</label>
+                            <textarea class="form-control" name="diagnosis" rows="3" 
+                                      placeholder="Diagnostic médical...">{{ report.diagnosis }}</textarea>
+                        </div>
+
+                        <!-- Traitement -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Traitement</label>
+                            <textarea class="form-control" name="treatment" rows="3" 
+                                      placeholder="Traitement prescrit...">{{ report.treatment }}</textarea>
+                        </div>
+
+                        <!-- Recommandations -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Recommandations</label>
+                            <textarea class="form-control" name="recommendations" rows="3" 
+                                      placeholder="Recommandations pour le suivi...">{{ report.recommendations }}</textarea>
+                        </div>
+
+                        <!-- Statut -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Statut *</label>
+                            <select class="form-select" name="status" required>
+                                {% for value, label in status_choices %}
+                                    <option value="{{ value }}" {% if value == report.status %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Priorité -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Priorité</label>
+                            <select class="form-select" name="priority">
+                                {% for value, label in priority_choices %}
+                                    <option value="{{ value }}" {% if value == report.priority %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'view_report' report.id %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer les Modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

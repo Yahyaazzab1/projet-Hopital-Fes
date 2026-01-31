@@ -1,0 +1,247 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Document - {{ document.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-file-medical me-2"></i>{{ document.title }}</h2>
+            <p class="text-muted mb-0">
+                <i class="fas fa-calendar me-2"></i>Créé le {{ document.created_at|date:"d/m/Y à H:i" }}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'documents' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            {% if image_base64 %}
+            <a href="{% url 'download_document' document.id %}" class="btn btn-success me-2">
+                <i class="fas fa-download me-2"></i>Télécharger
+            </a>
+            {% endif %}
+            <a href="{% url 'edit_document' document.id %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Imprimer
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Image scannée -->
+        {% if image_base64 %}
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-image me-2"></i>Document Scanné</h5>
+                </div>
+                <div class="card-body text-center bg-light">
+                    <div class="document-viewer">
+                        <img src="{{ image_base64 }}" 
+                             alt="{{ document.title }}" 
+                             class="img-fluid rounded shadow"
+                             style="max-height: 700px; width: auto;">
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Qualité: {{ document.quality_score|default:"N/A" }}% | 
+                            Confiance IA: {{ document.ai_confidence|default:"N/A" }}%
+                        </span>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="zoomIn()">
+                                <i class="fas fa-search-plus"></i> Zoom +
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="zoomOut()">
+                                <i class="fas fa-search-minus"></i> Zoom -
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()">
+                                <i class="fas fa-sync"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Informations du document -->
+        <div class="{% if image_base64 %}col-lg-4{% else %}col-lg-8 mx-auto{% endif %}">
+            <!-- Détails -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Patient</label>
+                        <p class="h6">
+                            <i class="fas fa-user me-2"></i>
+                            <a href="{% url 'view_patient' document.patient.id %}" class="text-decoration-none">
+                                {{ document.patient.get_full_name }}
+                            </a>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Type de Document</label>
+                        <p>
+                            <span class="badge bg-primary">{{ document.get_document_type_display }}</span>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Statut</label>
+                        <p>
+                            <span class="badge bg-{% if document.status == 'completed' %}success{% elif document.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                {{ document.get_status_display|default:"N/A" }}
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Priorité</label>
+                        <p>
+                            <span class="badge bg-{% if document.priority == 'high' %}danger{% elif document.priority == 'urgent' %}danger{% else %}info{% endif %}">
+                                {{ document.get_priority_display|default:"Normale" }}
+                            </span>
+                        </p>
+                    </div>
+
+                    {% if document.description and 'Image scannée' not in document.description %}
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted">Description</label>
+                        <div class="p-3 bg-light rounded">
+                            {{ document.description|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Métadonnées -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="fas fa-tags me-2"></i>Métadonnées</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted">ID du Document</small>
+                        <div class="fw-bold">#{{ document.id }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Créé par</small>
+                        <div class="fw-bold">{{ document.created_by.get_full_name|default:"Système" }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Date de création</small>
+                        <div class="fw-bold">{{ document.created_at|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Dernière modification</small>
+                        <div class="fw-bold">{{ document.updated_at|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    {% if document.ai_processed %}
+                    <div class="mb-2">
+                        <small class="text-muted">Traité par IA</small>
+                        <div class="fw-bold">
+                            <span class="badge bg-success">
+                                <i class="fas fa-check me-1"></i>Oui
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions Rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit_document' document.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>Modifier le Document
+                        </a>
+                        <a href="{% url 'view_patient' document.patient.id %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-user me-2"></i>Voir le Patient
+                        </a>
+                        {% if image_base64 %}
+                        <a href="{% url 'download_document' document.id %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-download me-2"></i>Télécharger l'Image
+                        </a>
+                        {% endif %}
+                        <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Imprimer
+                        </button>
+                        <form method="POST" action="{% url 'delete_document' document.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                <i class="fas fa-trash me-2"></i>Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.document-viewer {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.document-viewer img {
+    transition: transform 0.3s ease;
+}
+
+@media print {
+    .btn, .card-header, nav, .btn-group {
+        display: none !important;
+    }
+    .document-viewer img {
+        max-width: 100%;
+        max-height: none !important;
+    }
+}
+</style>
+
+<script>
+let currentZoom = 1;
+
+function zoomIn() {
+    currentZoom += 0.2;
+    applyZoom();
+}
+
+function zoomOut() {
+    if (currentZoom > 0.4) {
+        currentZoom -= 0.2;
+        applyZoom();
+    }
+}
+
+function resetZoom() {
+    currentZoom = 1;
+    applyZoom();
+}
+
+function applyZoom() {
+    const img = document.querySelector('.document-viewer img');
+    if (img) {
+        img.style.transform = `scale(${currentZoom})`;
+    }
+}
+</script>
+{% endblock %}

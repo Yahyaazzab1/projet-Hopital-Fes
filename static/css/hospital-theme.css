@@ -1,0 +1,252 @@
+/* Thème Hôpital - Palette de couleurs personnalisée */
+:root {
+    /* Couleurs principales */
+    --hospital-primary: #0a5c36;    /* Vert foncé */
+    --hospital-primary-light: #0d7a4a; /* Vert plus clair pour les effets */
+    --hospital-primary-dark: #063d24;   /* Vert plus foncé */
+    --hospital-secondary: #e6f0eb;  /* Vert très clair pour les fonds */
+    --hospital-accent: #2e8b57;     /* Vert moyen pour les accents */
+    --hospital-text: #333333;       /* Texte principal */
+    --hospital-light: #ffffff;      /* Blanc */
+    --hospital-gray: #f5f5f5;       /* Gris clair pour les arrière-plans */
+    
+    /* Dégradés */
+    --gradient-primary: linear-gradient(135deg, var(--hospital-primary) 0%, var(--hospital-accent) 100%);
+    
+    /* Espacements */
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Réinitialisation des styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--hospital-light);
+    color: var(--hospital-text);
+    line-height: 1.6;
+}
+
+/* En-tête et navigation */
+.navbar {
+    background-color: var(--hospital-primary) !important;
+    box-shadow: var(--box-shadow);
+    padding: 0.8rem 2rem;
+}
+
+.navbar-brand {
+    color: var(--hospital-light) !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.navbar-brand i {
+    margin-right: 10px;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link:focus {
+    color: var(--hospital-light) !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+}
+
+.nav-link.active {
+    color: var(--hospital-light) !important;
+    font-weight: 600;
+    position: relative;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+    right: 1rem;
+    height: 3px;
+    background: var(--hospital-light);
+    border-radius: 3px;
+}
+
+/* Boutons */
+.btn {
+    border-radius: var(--border-radius);
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--hospital-primary);
+    border-color: var(--hospital-primary);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--hospital-primary-light);
+    border-color: var(--hospital-primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-primary {
+    color: var(--hospital-primary);
+    border-color: var(--hospital-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--hospital-primary);
+    border-color: var(--hospital-primary);
+}
+
+/* Cartes */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--hospital-primary);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: var(--hospital-light);
+    border-bottom: 1px solid var(--hospital-secondary);
+    font-weight: 600;
+    color: var(--hospital-primary);
+    padding: 1rem 1.25rem;
+}
+
+/* Formulaire */
+.form-control, .form-select {
+    border: 1px solid #ced4da;
+    border-radius: var(--border-radius);
+    padding: 0.6rem 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--hospital-primary);
+    box-shadow: 0 0 0 0.25rem rgba(10, 92, 54, 0.15);
+}
+
+/* Tableau */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: var(--hospital-text);
+}
+
+.table thead th {
+    background-color: var(--hospital-secondary);
+    color: var(--hospital-primary);
+    border-bottom: 2px solid var(--hospital-primary);
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(230, 240, 235, 0.5);
+}
+
+/* Alertes */
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border-left: 4px solid #2e7d32;
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border-left: 4px solid #1565c0;
+}
+
+/* Badges */
+.badge {
+    padding: 0.4em 0.8em;
+    font-weight: 600;
+    border-radius: 50px;
+    font-size: 0.8em;
+}
+
+.badge-primary {
+    background-color: var(--hospital-primary);
+    color: white;
+}
+
+/* Pied de page */
+.footer {
+    background-color: var(--hospital-primary);
+    color: var(--hospital-light);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+/* Réactivité */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.5rem 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 0.75rem !important;
+    }
+}
+
+/* Thème sombre */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+    
+    .card, .modal-content {
+        background-color: #2d2d2d;
+        color: #e0e0e0;
+    }
+    
+    .table {
+        color: #e0e0e0;
+    }
+    
+    .table thead th {
+        background-color: #1a3a29;
+        color: #e0e0e0;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #2a3a31;
+    }
+}

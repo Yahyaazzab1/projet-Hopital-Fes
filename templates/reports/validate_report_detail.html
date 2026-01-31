@@ -1,0 +1,329 @@
+{% extends 'medical/base.html' %}
+{% load static %}
+
+{% block title %}Validation du Rapport - {{ report.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+    }
+    
+    .validation-panel {
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .status-validated {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+    }
+    
+    .status-rejected {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .patient-info {
+        background: #e9ecef;
+        border-radius: 8px;
+    }
+    
+    .doctor-info {
+        background: #d1ecf1;
+        border-radius: 8px;
+    }
+    
+    .action-buttons {
+        gap: 1rem;
+    }
+    
+    .comment-section {
+        background: white;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête du rapport -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="report-header p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2><i class="fas fa-file-medical-alt"></i> {{ report.title }}</h2>
+                        <p class="mb-0">{{ report.get_report_type_display }} - {{ report.report_date|date:"d F Y à H:i" }}</p>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        {% if report.status == 'pending_validation' %}
+                            <span class="badge badge-warning badge-lg p-2">
+                                <i class="fas fa-clock"></i> En attente de validation
+                            </span>
+                        {% elif report.status == 'validated' %}
+                            <span class="badge badge-success badge-lg p-2">
+                                <i class="fas fa-check-circle"></i> Validé
+                            </span>
+                        {% elif report.status == 'rejected' %}
+                            <span class="badge badge-danger badge-lg p-2">
+                                <i class="fas fa-times-circle"></i> Rejeté
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-lg-8">
+            <!-- Informations patient -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-injured"></i> Informations Patient</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="patient-info p-3">
+                                <h6><i class="fas fa-id-card"></i> Identité</h6>
+                                <p class="mb-1"><strong>Nom:</strong> {{ report.patient.full_name }}</p>
+                                <p class="mb-1"><strong>Date de naissance:</strong> {{ report.patient.date_of_birth|date:"d/m/Y" }}</p>
+                                <p class="mb-1"><strong>Âge:</strong> {{ report.patient.age }} ans</p>
+                                <p class="mb-0"><strong>Numéro dossier:</strong> {{ report.patient.id }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="doctor-info p-3">
+                                <h6><i class="fas fa-user-md"></i> Médecin Responsable</h6>
+                                <p class="mb-1"><strong>Nom:</strong> Dr. {{ report.created_by.get_full_name }}</p>
+                                <p class="mb-1"><strong>Département:</strong> {{ report.created_by.department|default:"Non spécifié" }}</p>
+                                <p class="mb-1"><strong>Spécialité:</strong> {{ report.created_by.specialization|default:"Généraliste" }}</p>
+                                <p class="mb-0"><strong>Email:</strong> {{ report.created_by.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu du rapport -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-medical"></i> Contenu du Rapport</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-stethoscope"></i> Diagnostic</h6>
+                            <div class="border rounded p-3 bg-light">
+                                {{ report.diagnosis|linebreaks|default:"Aucun diagnostic spécifié" }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-pills"></i> Traitement</h6>
+                            <div class="border rounded p-3 bg-light">
+                                {{ report.treatment|linebreaks|default:"Aucun traitement spécifié" }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h6><i class="fas fa-clipboard-list"></i> Résumé</h6>
+                            <div class="border rounded p-3 bg-light">
+                                {{ report.summary|linebreaks|default:"Aucun résumé disponible" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique des rapports du patient -->
+            {% if validation_history %}
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Historique des Rapports - {{ report.patient.full_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Statut</th>
+                                    <th>Validé par</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hist_report in validation_history %}
+                                <tr>
+                                    <td>{{ hist_report.report_date|date:"d/m/Y" }}</td>
+                                    <td>{{ hist_report.get_report_type_display }}</td>
+                                    <td>
+                                        {% if hist_report.status == 'validated' %}
+                                            <span class="badge badge-success">Validé</span>
+                                        {% elif hist_report.status == 'rejected' %}
+                                            <span class="badge badge-danger">Rejeté</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ hist_report.validated_by.get_full_name|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Panel de validation -->
+        <div class="col-lg-4">
+            <div class="validation-panel p-4">
+                <h5 class="mb-4"><i class="fas fa-clipboard-check"></i> Validation Administrative</h5>
+                
+                {% if report.status == 'pending_validation' %}
+                    <form method="post" id="validationForm">
+                        {% csrf_token %}
+                        
+                        <!-- Commentaires administratifs -->
+                        <div class="form-group">
+                            <label for="admin_comment"><i class="fas fa-comment"></i> Commentaires administratifs</label>
+                            <textarea class="form-control" id="admin_comment" name="admin_comment" 
+                                      rows="4" placeholder="Ajoutez vos commentaires sur ce rapport..."></textarea>
+                            <small class="form-text text-muted">
+                                Ces commentaires seront visibles par le médecin.
+                            </small>
+                        </div>
+
+                        <!-- Actions de validation -->
+                        <div class="action-buttons d-flex flex-column">
+                            <button type="submit" name="action" value="validate" 
+                                    class="btn btn-success btn-lg mb-2">
+                                <i class="fas fa-check"></i> Valider le Rapport
+                            </button>
+                            
+                            <button type="submit" name="action" value="return" 
+                                    class="btn btn-warning btn-lg mb-2">
+                                <i class="fas fa-undo"></i> Retourner au Médecin
+                            </button>
+                            
+                            <button type="submit" name="action" value="reject" 
+                                    class="btn btn-danger btn-lg mb-3">
+                                <i class="fas fa-times"></i> Rejeter le Rapport
+                            </button>
+                        </div>
+
+                        <!-- Informations de validation -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Informations</h6>
+                            <ul class="mb-0 small">
+                                <li><strong>Valider:</strong> Approuve définitivement le rapport</li>
+                                <li><strong>Retourner:</strong> Renvoie au médecin pour modifications</li>
+                                <li><strong>Rejeter:</strong> Refuse le rapport</li>
+                            </ul>
+                        </div>
+                    </form>
+                    
+                {% else %}
+                    <!-- Rapport déjà traité -->
+                    <div class="alert alert-{{ report.status == 'validated' and 'success' or 'danger' }}">
+                        <h6><i class="fas fa-info-circle"></i> Statut du Rapport</h6>
+                        <p class="mb-2">
+                            Ce rapport a été 
+                            {% if report.status == 'validated' %}
+                                <strong>validé</strong>
+                            {% elif report.status == 'rejected' %}
+                                <strong>rejeté</strong>
+                            {% endif %}
+                            le {{ report.validation_date|date:"d/m/Y à H:i" }}
+                        </p>
+                        <p class="mb-0"><strong>Par:</strong> {{ report.validated_by.get_full_name }}</p>
+                    </div>
+                    
+                    {% if report.admin_comment %}
+                    <div class="comment-section p-3">
+                        <h6><i class="fas fa-comment"></i> Commentaires</h6>
+                        <p class="mb-0">{{ report.admin_comment }}</p>
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Actions secondaires -->
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'admin_validation' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                    <a href="{% url 'view_report' report.id %}" class="btn btn-outline-primary">
+                        <i class="fas fa-eye"></i> Voir complet
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Confirmation avant validation
+    $('#validationForm').on('submit', function(e) {
+        var action = $('button[type="submit"]:focus').attr('name');
+        var actionValue = $('button[type="submit"]:focus').val();
+        
+        var message = '';
+        switch(actionValue) {
+            case 'validate':
+                message = 'Êtes-vous sûr de vouloir VALIDER ce rapport ? Cette action est définitive.';
+                break;
+            case 'reject':
+                message = 'Êtes-vous sûr de vouloir REJETER ce rapport ? Cette action est définitive.';
+                break;
+            case 'return':
+                message = 'Êtes-vous sûr de vouloir RETOURNER ce rapport au médecin ?';
+                break;
+        }
+        
+        if (!confirm(message)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Auto-resize textarea
+    $('#admin_comment').on('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+});
+</script>
+{% endblock %}
+
+
+
