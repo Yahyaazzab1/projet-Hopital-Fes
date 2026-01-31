@@ -1,0 +1,17 @@
+# Django Framework
+Django==4.2.24
+
+# Django REST Framework
+djangorestframework
+
+# CORS Headers
+django-cors-headers
+
+# Database (SQLite is included with Python, but you can add PostgreSQL/MySQL drivers if needed)
+# psycopg2-binary  # For PostgreSQL
+# mysqlclient      # For MySQL
+
+# Optional: For production deployment
+# gunicorn
+# whitenoise
+
